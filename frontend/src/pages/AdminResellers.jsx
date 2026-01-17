@@ -152,7 +152,7 @@ const AdminResellers = () => {
                             )}
 
                             <div className="flex justify-between items-start mb-4 pr-16">
-                                <h3 className="m-0 text-xl font-bold text-white line-clamp-1">{reseller.businessName || 'No Business Name'}</h3>
+                                <h3 className="m-0 text-xl font-bold text-white line-clamp-1">{reseller.businessDetails?.businessName || 'No Business Name'}</h3>
                             </div>
 
                             <div className="text-sm text-zinc-400 mb-6 space-y-2 flex-1">
