@@ -66,6 +66,5 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 userSchema.index({ role: 1 });
 userSchema.index({ accountStatus: 1 });
 userSchema.index({ createdAt: -1 });
-userSchema.index({ email: 1 });
 
 module.exports = mongoose.model('User', userSchema);
