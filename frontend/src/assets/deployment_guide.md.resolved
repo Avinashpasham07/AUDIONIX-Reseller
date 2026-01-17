@@ -1,0 +1,93 @@
+# Deployment Guide: "Best & Cheapest" MERN Stack
+
+This guide outlines the most cost-effective strategies to deploy your MERN stack application, specifically tailored for your expected traffic (~200 daily visitors).
+
+---
+
+## 🚀 Recommendation for 200 Daily Customers
+
+For a professional business with daily traffic, you cannot afford "Cold Starts" (where the server sleeps and takes 30-50s to wake up).
+
+**The "Sweet Spot" Strategy (Best Balance of Cost & Ease):**
+- **Frontend**: [Vercel](https://vercel.com) (**Free**).
+    - *Why?* Excellent performance, global CDN, handles spikes easily.
+- **Backend**: [Render](https://render.com) (**$7/month "Starter" Plan**).
+    - *Why?* The Free tier "sleeps" after inactivity. The $7/mo plan runs 24/7, ensuring your customers never wait.
+    - *AWS Alternative*: AWS EC2 (t2.micro/t3.micro) is free for 12 months, then ~$10/mo. It is much harder to set up and manage.
+- **Database**: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (**Free** 512MB Cluster).
+    - *Why?* 200 daily visitors is easily handled by the free tier. Upgrade to ~$9/mo (Shared M2) only if your database grows huge.
+
+**Total Cost: ~$7 / month** (for a professional, always-online store).
+
+---
+
+## Cost & Features Comparison
+
+| Feature | **Hobby Stack (Free)** | **Business Stack ($7/mo)** | **AWS EC2 (Manual)** |
+| :--- | :--- | :--- | :--- |
+| **Provider** | Vercel + Render Free | **Vercel + Render Starter** | AWS EC2 + S3 |
+| **Cost** | **$0 / month** | **$7 / month** | Free (Year 1) -> ~$10+ |
+| **Uptime** | Sleeps on inactivity | **24/7 Always On** | 24/7 Always On |
+| **Speed** | Slow first load (~40s) | **Fast (Instant)** | Fast (Instant) |
+| **Complexity** | Easy | **Easy** | High (DevOps knowledge needed) |
+
+> **Verdict**: For 200 customers, pay the **$7/month to Render**. It guarantees a smooth "Premium" experience. Losing a customer because the site took 40 seconds to load costs more than $7.
+
+---
+
+## Step 1: Prepare Your Code
+1.  **Environment Variables**: Ensure you aren't hardcoding secrets.
+    - Frontend: Use `import.meta.env.VITE_API_BASE_URL` (Updated in your code).
+    - Backend: Use `process.env.MONGO_URI`, `process.env.JWT_SECRET`, etc.
+
+2.  **Separate Folders**:
+    ```
+    /root
+      /frontend
+      /backend
+    ```
+
+---
+
+## Step 2: Database (MongoDB Atlas)
+1.  Log in to [MongoDB Atlas](https://cloud.mongodb.com/).
+2.  **Network Access**: Add IP **0.0.0.0/0** (Allow Access from Anywhere).
+3.  **Connection String**: Copy it (e.g., `mongodb+srv://...`).
+
+---
+
+## Step 3: Backend Deployment (Render)
+1.  Sign up at [Render.com](https://render.com/).
+2.  Click **New +** -> **Web Service**.
+3.  Connect your GitHub repository.
+4.  **Configuration**:
+    - **Name**: `avinash-backend`
+    - **Root Directory**: `backend`
+    - **Environment**: `Node`
+    - **Build Command**: `npm install`
+    - **Start Command**: `node server.js`
+    - **Instance Type**: Select **Starter ($7/mo)** for business use, or **Free** for testing.
+5.  **Environment Variables**:
+    - `MONGO_URI`: (Your Atlas URL)
+    - `JWT_SECRET`: (Your secret)
+    - `CLIENT_URL`: `https://your-vercel-app.vercel.app` (Add this later)
+6.  Click **Create Web Service**.
+
+---
+
+## Step 4: Frontend Deployment (Vercel)
+1.  Sign up at [Vercel.com](https://vercel.com).
+2.  Click **Add New...** -> **Project**.
+3.  Import your GitHub repo.
+4.  **Framework Preset**: Vite.
+5.  **Root Directory**: Edit -> Select `frontend`.
+6.  **Environment Variables**:
+    - `VITE_API_BASE_URL`: `https://avinash-backend.onrender.com/api` (Render URL + `/api`)
+7.  Click **Deploy**.
+
+---
+
+## Step 5: Final Connection
+1.  Go back to **Render Dashboard**.
+2.  Update the `CLIENT_URL` variable to your new Vercel URL.
+3.  Save Changes. Render will restart the server.
