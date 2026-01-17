@@ -126,7 +126,7 @@ const AdminResellers = () => {
             {/* SEARCH BAR */}
             <div className="mb-6 px-4 md:px-0">
                 <div className="relative w-full md:w-[400px]">
-                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+
                     <input
                         type="text"
                         placeholder="Search by Name, Email, Business..."
