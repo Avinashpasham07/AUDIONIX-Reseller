@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
         gstNumber: { type: String },
         address: { type: String },
     },
-    kycDocuments: [{ type: String }], // Array of URLs
+    kycDocuments: [{ type: String }],
     accountStatus: {
         type: String,
         enum: ['pending', 'approved', 'rejected', 'inactive'],
