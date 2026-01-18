@@ -1,10 +1,11 @@
 
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
     FaBolt, FaShieldAlt, FaChartLine, FaBoxOpen, FaUserPlus, FaArrowRight, FaIdCard,
     FaCheckCircle, FaUsers, FaGlobeAsia, FaHandshake, FaLaptopCode, FaShippingFast,
-    FaBullhorn, FaMoneyBillWave, FaSearchDollar, FaPlus, FaMinus, FaHeadset
+    FaBullhorn, FaMoneyBillWave, FaSearchDollar, FaPlus, FaMinus, FaHeadset,
+    FaBars, FaTimes
 } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import Footer from '../components/Footer';
@@ -13,10 +14,9 @@ import toast from 'react-hot-toast';
 import Reveal from '../components/Reveal';
 
 const Counter = ({ end, duration = 2000 }) => {
-    // ... code truncated for brevity, assume Counter is unchanged ...
     const [count, setCount] = useState(0);
 
-    React.useEffect(() => {
+    useEffect(() => {
         let startTime;
         let animationFrame;
 
@@ -45,38 +45,92 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const [openFaq, setOpenFaq] = useState(null);
     const [showMeetingModal, setShowMeetingModal] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+
+    // Handle scroll effect for navbar
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleScheduleClick = (e) => {
         e.preventDefault();
         setShowMeetingModal(true);
+        setMobileMenuOpen(false);
     };
 
     return (
-        <div className="min-h-screen bg-black text-white font-sans selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-black text-white font-sans selection:bg-red-900 selection:text-white overflow-x-hidden">
             {/* Navbar */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-zinc-800">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Link to="/" className="inline-block relative">
-                            <div className="text-3xl font-black italic text-bold tracking-tighter text-red-600 leading-none">AUDIONIX</div>
-                            <span className="absolute -bottom-4 italic right-0 text-white tracking-tight text-[15px] font-normal">Reseller</span>
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-xl border-b border-zinc-800 shadow-lg py-3' : 'bg-transparent py-5'}`}>
+                <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                    <div className="flex items-center gap-2 z-50">
+                        <Link to="/" className="inline-block relative group" onClick={() => setMobileMenuOpen(false)}>
+                            <div className="text-2xl md:text-3xl font-black italic text-bold tracking-tighter text-red-600 leading-none transition-transform group-hover:scale-105">AUDIONIX</div>
+                            <span className="absolute -bottom-3 md:-bottom-4 italic right-0 text-white tracking-tight text-[12px] md:text-[15px] font-normal opacity-80">Reseller</span>
                         </Link>
                     </div>
-                    <div className="flex items-center gap-4">
+
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex items-center gap-6">
+                        {!user && (
+                            <Link to="/login" className="text-zinc-400 font-bold text-sm hover:text-white transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-red-600 after:left-0 after:-bottom-1 after:transition-all hover:after:w-full">
+                                Login
+                            </Link>
+                        )}
                         {user ? (
-                            <Link to="/dashboard" className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm hover:bg-zinc-200 transition shadow-lg shadow-white/10">
+                            <Link to="/dashboard" className="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm hover:bg-zinc-200 transition-all shadow-lg shadow-white/10 hover:shadow-white/20 active:scale-95 transform hover:-translate-y-0.5">
                                 Go to Dashboard
                             </Link>
                         ) : (
-                            <>
-                                <Link to="/login" className="text-zinc-400 font-bold text-sm hover:text-white transition hidden md:block">
-                                    Login
-                                </Link>
-                                <Link to="/register" className="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-red-700 transition shadow-lg shadow-red-600/20">
-                                    Apply as Reseller
-                                </Link>
-                            </>
+                            <Link to="/register" className="bg-red-600 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-red-700 transition-all shadow-lg shadow-red-600/20 hover:shadow-red-600/40 active:scale-95 flex items-center gap-2 group transform hover:-translate-y-0.5">
+                                Apply Now <FaArrowRight className="group-hover:translate-x-1 transition-transform" size={12} />
+                            </Link>
                         )}
+                    </div>
+
+                    {/* Mobile Toggle */}
+                    <button
+                        className="md:hidden z-50 w-11 h-11 flex items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-white active:scale-90 transition-all hover:bg-zinc-800 shadow-lg shadow-black/50"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {mobileMenuOpen ? <FaTimes size={22} className="text-red-500" /> : <FaBars size={22} />}
+                    </button>
+
+                    {/* Mobile Menu Dropdown */}
+                    <div className={`absolute top-full left-0 w-full bg-zinc-950 border-b border-zinc-800 shadow-2xl transition-all duration-300 ease-in-out md:hidden flex flex-col overflow-hidden ${mobileMenuOpen ? 'max-h-[400px] opacity-100 py-6' : 'max-h-0 opacity-0 py-0'}`}>
+                        <div className="flex flex-col gap-4 px-6">
+                            {user ? (
+                                <Link
+                                    to="/dashboard"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="w-full bg-white text-black py-3 rounded-xl font-bold text-center shadow-lg active:scale-[0.98] transition-transform"
+                                >
+                                    Dashboard
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/login"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full bg-zinc-900 border border-zinc-800 text-white py-3 rounded-xl font-bold text-center active:scale-[0.98] transition-all hover:bg-zinc-800"
+                                    >
+                                        Log In
+                                    </Link>
+                                    <Link
+                                        to="/register"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full bg-red-600 text-white py-3 rounded-xl font-bold text-center shadow-lg shadow-red-900/20 active:scale-[0.98] transition-all"
+                                    >
+                                        Apply Now
+                                    </Link>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             </nav>

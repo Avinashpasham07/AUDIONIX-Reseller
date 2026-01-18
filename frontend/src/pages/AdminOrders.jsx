@@ -357,7 +357,7 @@ const AdminOrders = () => {
 
                     {/* CONTROLS: TABS & SEARCH */}
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
-                        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+                        <div className="flex flex-wrap md:flex-nowrap gap-2 md:gap-0 w-full md:w-auto pb-0 md:pb-0 scrollbar-hide">
                             {[
                                 { id: 'all', label: 'All Orders' },
                                 { id: 'pending_shipping_calc', label: 'Add Shipping' },
@@ -369,7 +369,7 @@ const AdminOrders = () => {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab.id
+                                    className={`flex-1 md:flex-none px-4 py-2 rounded-xl md:rounded-full border text-sm font-medium whitespace-nowrap transition-colors text-center ${activeTab === tab.id
                                         ? 'border-red-600 bg-red-600 text-white'
                                         : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-white'
                                         }`}

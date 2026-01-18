@@ -111,7 +111,7 @@ const Navbar = () => {
     };
 
     return (
-        <div className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900 px-4 py-3 md:px-8 min-h-[var(--header-height)] flex flex-row items-center justify-between gap-0 transition-all duration-300">
+        <div className="fixed top-0 right-0 left-0 md:left-[72px] z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900 px-4 py-3 md:px-8 min-h-[var(--header-height)] flex flex-row items-center justify-between gap-0 transition-all duration-300">
             {/* Logo Section */}
             <div>
                 <Link to="/" className="inline-block relative no-underline group">
@@ -149,7 +149,7 @@ const Navbar = () => {
 
                     {/* Dropdown */}
                     {showDropdown && (
-                        <div className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="fixed left-4 right-4 top-[70px] md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-80 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                             <div className="p-3 border-b border-zinc-800 font-bold text-zinc-200 text-sm flex justify-between items-center bg-zinc-900">
                                 <span>Notifications</span>
                                 <span className="text-xs text-blue-400 cursor-pointer hover:underline" onClick={fetchNotifications}>Refresh</span>

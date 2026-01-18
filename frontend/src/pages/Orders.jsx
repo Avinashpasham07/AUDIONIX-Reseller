@@ -189,12 +189,12 @@ const Orders = () => {
                         </button>
 
                         {/* Premium Filter Tabs */}
-                        <div className="flex p-1.5 bg-zinc-900/50 backdrop-blur-md rounded-2xl border border-zinc-800/50 overflow-x-auto max-w-full no-scrollbar shadow-inner">
+                        <div className="flex flex-wrap md:flex-nowrap gap-2 md:gap-0 p-1.5 bg-zinc-900/50 backdrop-blur-md rounded-2xl border border-zinc-800/50 w-full md:w-auto overflow-visible md:overflow-x-auto no-scrollbar shadow-inner">
                             {['all', 'pending', 'shipped', 'delivered', 'cancelled'].map((status) => (
                                 <button
                                     key={status}
                                     onClick={() => handleFilterChange(status)}
-                                    className={`px-5 py-2.5 rounded-xl text-sm font-bold capitalize transition-all duration-300 whitespace-nowrap ${filterStatus === status
+                                    className={`flex-1 md:flex-none px-4 py-2.5 rounded-xl text-sm font-bold capitalize transition-all duration-300 whitespace-nowrap text-center ${filterStatus === status
                                         ? 'bg-zinc-800 text-white shadow-lg shadow-black/20 ring-1 ring-white/10'
                                         : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'}`}
                                 >
