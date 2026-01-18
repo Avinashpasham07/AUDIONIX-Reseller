@@ -10,6 +10,9 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 
+// Trust Render's Proxy (Required for Rate Limiting & Logs)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors()); // Moved to top to handle Preflight/Network errors gracefully
 app.use(helmet({ crossOriginResourcePolicy: false }));
