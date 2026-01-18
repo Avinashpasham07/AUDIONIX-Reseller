@@ -4,8 +4,10 @@ const { registerReseller, loginUser, getMe, submitSubscriptionRequest } = requir
 const { protect } = require('../middleware/authMiddleware');
 const { validateRequest, schemas } = require('../middleware/validationMiddleware');
 
-router.post('/register', validateRequest(schemas.register), registerReseller);
-router.post('/login', validateRequest(schemas.login), loginUser);
+const { authLimiter } = require('../middleware/rateLimiter');
+
+router.post('/register', authLimiter, validateRequest(schemas.register), registerReseller);
+router.post('/login', authLimiter, validateRequest(schemas.login), loginUser);
 router.get('/me', protect, getMe);
 router.post('/upgrade-request', protect, submitSubscriptionRequest);
 

@@ -13,7 +13,20 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to Database
 // Connect to Database
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const mongoSanitize = require('express-mongo-sanitize');
+const { globalLimiter } = require('./middleware/rateLimiter');
+
+// Connect to Database
 connectDB();
+
+// --- SECURITY MIDDLEWARE ---
+app.use(helmet()); // Secure HTTP headers
+app.use(xss()); // Prevent XSS attacks
+app.use(mongoSanitize()); // Prevent NoSQL Injection
+app.use('/api/', globalLimiter); // Apply Rate Limiting
+
 
 // Keep-Alive Endpoint (Ping Trick for Render/Heroku)
 app.get('/ping', (req, res) => {
