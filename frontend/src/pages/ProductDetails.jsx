@@ -3,7 +3,7 @@ import AuthContext from '../context/AuthContext';
 import { usePixel } from '../context/PixelContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import MainLayout from '../components/MainLayout';
+
 import api from '../services/api';
 import CartContext from '../context/CartContext';
 import { FaShoppingCart, FaBolt, FaArrowLeft, FaTags, FaStar, FaStarHalfAlt, FaExchangeAlt, FaShieldAlt, FaMapMarkerAlt, FaGift, FaHeart, FaRegHeart, FaWhatsapp } from 'react-icons/fa';
@@ -111,11 +111,11 @@ const ProductDetails = () => {
         toast.success(`${product.title} added to cart! 🛒`);
     };
 
-    if (loading) return <MainLayout><div style={{ textAlign: 'center', marginTop: '4rem' }}>Loading details...</div></MainLayout>;
-    if (!product) return <MainLayout><div style={{ textAlign: 'center', marginTop: '4rem' }}>Product not found.</div></MainLayout>;
+    if (loading) return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Loading details...</div>;
+    if (!product) return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Product not found.</div>;
 
     return (
-        <MainLayout>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 mb-6 text-zinc-400 hover:text-white transition font-medium"
@@ -408,7 +408,7 @@ const ProductDetails = () => {
                     <FaBolt size={14} /> Buy Now
                 </button>
             </div>
-        </MainLayout>
+        </div>
     );
 };
 

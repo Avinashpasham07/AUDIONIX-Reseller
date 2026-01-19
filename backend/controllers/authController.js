@@ -68,6 +68,13 @@ exports.loginUser = async (req, res) => {
             // Allow all roles to proceed with login
             // Handling of pending/rejected status will be managed on the frontend dashboard
 
+            // 0. Check for Blocked Status
+            if (user.accountStatus === 'blocked') {
+                return res.status(403).json({
+                    message: 'Your account has been blocked by the admin. Please contact support to resolve this issue.'
+                });
+            }
+
             // 1. Check for Inactivity (Auto-Revoke > 45 Days)
             // Activity = Max(lastLogin, lastOrderDate, createdAt)
             const lastActive = new Date(Math.max(
@@ -122,6 +129,9 @@ exports.loginUser = async (req, res) => {
 exports.getMe = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (user) {
+        if (user.accountStatus === 'blocked') {
+            return res.status(403).json({ message: 'Account blocked' });
+        }
         res.json({
             _id: user.id,
             name: user.name,

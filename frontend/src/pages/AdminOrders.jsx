@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api, { FILE_BASE_URL } from '../services/api';
-import MainLayout from '../components/MainLayout';
+
 import ShippingLabel from '../components/ShippingLabel';
 import Skeleton from '../components/Skeleton';
 import { FaCheck, FaShippingFast, FaSearch, FaFilter, FaBoxOpen, FaMoneyBillWave, FaClock, FaClipboardList, FaFileDownload, FaPrint, FaEye, FaDownload, FaTimes, FaTruck, FaMapMarkerAlt, FaUpload, FaChevronDown, FaChevronUp, FaInfoCircle, FaQrcode, FaFileDownload as FaDownloadAlt } from 'react-icons/fa';
@@ -310,7 +310,7 @@ const AdminOrders = () => {
 
     return (
         <>
-            <MainLayout>
+            <>
                 <div className="p-4 md:p-8">
                     <h1 className="text-4xl mb-10 md:text-6xl font-black text-white tracking-tighter">
                         Order Command Center<span className="text-red-600">.</span>
@@ -871,7 +871,7 @@ const AdminOrders = () => {
                     />
                 )}
 
-            </MainLayout >
+            </>
 
             {/* --- INVOICE PREVIEW MODAL --- */}
             {invoicePreviewUrl && (

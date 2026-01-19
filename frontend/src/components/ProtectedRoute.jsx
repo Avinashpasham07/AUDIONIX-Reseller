@@ -13,6 +13,11 @@ const ProtectedRoute = ({ children, permission }) => {
         return <Navigate to="/login" replace />;
     }
 
+    if (user.accountStatus === 'blocked') {
+        localStorage.removeItem('token');
+        return <Navigate to="/login" replace />;
+    }
+
     // Role-based page protection for employees
     if (user.role === 'employee' && permission) {
         if (!user.permissions || !user.permissions.includes(permission)) {

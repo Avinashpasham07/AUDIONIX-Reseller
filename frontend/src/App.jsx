@@ -5,6 +5,8 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { PixelProvider } from './context/PixelContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import MainLayout from './components/MainLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy Load Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -42,106 +44,73 @@ const PageLoader = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <PixelProvider>
-          <div className="app-container">
-            <Toaster position="top-center" toastOptions={{
-              style: {
-                background: '#333',
-                color: '#fff',
-                borderRadius: '8px',
-                padding: '16px',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: 'white',
+    <ErrorBoundary>
+      <AuthProvider>
+        <CartProvider>
+          <PixelProvider>
+            <div className="app-container">
+              <Toaster position="top-center" toastOptions={{
+                style: {
+                  background: '#333',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  padding: '16px',
                 },
-              },
-            }} />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/pending-approval" element={<PendingApproval />} />
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: 'white',
+                  },
+                },
+              }} />
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/pending-approval" element={<PendingApproval />} />
 
-                {/* Public Landing Page */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/returns" element={<ReturnsPolicy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
+                  {/* Public Landing Page */}
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/returns" element={<ReturnsPolicy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
 
-                {/* Protected Dashboard */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
+                  {/* Protected Dashboard Layout Route */}
+                  <Route element={
+                    <ProtectedRoute>
+                      <MainLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/products/:id" element={<ProductDetails />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/orders" element={<Orders />} />
 
-                <Route path="/products" element={
-                  <ProtectedRoute>
-                    <Products />
-                  </ProtectedRoute>
-                } />
+                    {/* Admin Routes */}
+                    <Route path="/admin/resellers" element={<ProtectedRoute permission="resellers"><AdminResellers /></ProtectedRoute>} />
+                    <Route path="/admin/orders" element={<ProtectedRoute permission="orders"><AdminOrders /></ProtectedRoute>} />
+                    <Route path="/admin/settings" element={<ProtectedRoute permission="settings"><AdminSettings /></ProtectedRoute>} />
+                    <Route path="/admin/requests" element={<ProtectedRoute permission="requests"><AdminSubscriptionRequests /></ProtectedRoute>} />
+                    <Route path="/admin/analytics-view" element={<ProtectedRoute permission="analytics"><AdminAnalytics /></ProtectedRoute>} />
+                    <Route path="/admin/meetings" element={<ProtectedRoute permission="meetings"><AdminMeetings /></ProtectedRoute>} />
+                    <Route path="/admin/employees" element={<ProtectedRoute permission="employees"><AdminEmployees /></ProtectedRoute>} />
+                    <Route path="/admin/products" element={<ProtectedRoute permission="products"><AdminProducts /></ProtectedRoute>} />
+                    <Route path="/admin/products/create" element={<ProtectedRoute permission="products"><AdminProductForm /></ProtectedRoute>} />
+                    <Route path="/admin/products/edit/:id" element={<ProtectedRoute permission="products"><AdminProductForm /></ProtectedRoute>} />
+                  </Route>
 
-                <Route path="/products/:id" element={
-                  <ProtectedRoute>
-                    <ProductDetails />
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/wishlist" element={
-                  <ProtectedRoute>
-                    <Wishlist />
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/cart" element={
-                  <ProtectedRoute>
-                    <Cart />
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/checkout" element={
-                  <ProtectedRoute>
-                    <Checkout />
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/orders" element={
-                  <ProtectedRoute>
-                    <Orders />
-                  </ProtectedRoute>
-                } />
-
-                {/* Admin Routes */}
-                <Route path="/admin/resellers" element={<ProtectedRoute permission="resellers"><AdminResellers /></ProtectedRoute>} />
-                <Route path="/admin/orders" element={<ProtectedRoute permission="orders"><AdminOrders /></ProtectedRoute>} />
-                <Route path="/admin/settings" element={<ProtectedRoute permission="settings"><AdminSettings /></ProtectedRoute>} />
-                <Route path="/admin/requests" element={<ProtectedRoute permission="requests"><AdminSubscriptionRequests /></ProtectedRoute>} />
-                <Route path="/admin/analytics-view" element={<ProtectedRoute permission="analytics"><AdminAnalytics /></ProtectedRoute>} />
-                <Route path="/admin/meetings" element={<ProtectedRoute permission="meetings"><AdminMeetings /></ProtectedRoute>} />
-                <Route path="/admin/employees" element={<ProtectedRoute permission="employees"><AdminEmployees /></ProtectedRoute>} />
-
-                {/* Admin Product Management */}
-                <Route path="/admin/products" element={<ProtectedRoute permission="products"><AdminProducts /></ProtectedRoute>} />
-                <Route path="/admin/products/create" element={<ProtectedRoute permission="products"><AdminProductForm /></ProtectedRoute>} />
-                <Route path="/admin/products/edit/:id" element={<ProtectedRoute permission="products"><AdminProductForm /></ProtectedRoute>} />
-
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </Suspense>
-          </div>
-        </PixelProvider>
-      </CartProvider>
-    </AuthProvider>
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </PixelProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

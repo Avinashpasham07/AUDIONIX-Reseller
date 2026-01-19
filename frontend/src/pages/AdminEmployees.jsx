@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
-import MainLayout from '../components/MainLayout';
 import { FaUserPlus, FaTrash, FaShieldAlt, FaEnvelope, FaUser, FaLock, FaCheckSquare, FaEdit } from 'react-icons/fa';
 
 const AdminEmployees = () => {
@@ -101,7 +100,7 @@ const AdminEmployees = () => {
     };
 
     return (
-        <MainLayout>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <div className="mb-8 p-4 md:p-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
@@ -271,7 +270,7 @@ const AdminEmployees = () => {
                     </div>
                 </div>
             )}
-        </MainLayout>
+        </div>
     );
 };
 

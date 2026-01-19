@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MainLayout from '../components/MainLayout';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { FaCheck, FaTimes, FaExternalLinkAlt, FaImage, FaHistory, FaClock, FaList } from 'react-icons/fa';
@@ -46,10 +45,10 @@ const AdminSubscriptionRequests = () => {
         }
     };
 
-    if (loading) return <MainLayout><div className="p-8 text-center">Loading requests...</div></MainLayout>;
+    if (loading) return <div className="p-8 text-center">Loading requests...</div>;
 
     return (
-        <MainLayout>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <div className="mb-6 p-4 md:p-0 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
 
@@ -236,7 +235,7 @@ const AdminSubscriptionRequests = () => {
                     </div>
                 </div>
             )}
-        </MainLayout>
+        </div>
     );
 };
 

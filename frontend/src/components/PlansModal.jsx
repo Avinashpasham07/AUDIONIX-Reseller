@@ -10,6 +10,7 @@ const PlansModal = ({ onClose, user, onUpdateUser }) => {
     const [loading, setLoading] = useState(false);
     const [premiumPrice, setPremiumPrice] = useState('499'); // Default
     const [premiumOriginalPrice, setPremiumOriginalPrice] = useState(null);
+    const [premiumQrUrl, setPremiumQrUrl] = useState('');
     const [paymentData, setPaymentData] = useState({
         transactionId: '',
         screenshotUrl: ''
@@ -24,6 +25,9 @@ const PlansModal = ({ onClose, user, onUpdateUser }) => {
                 }
                 if (data.premium_subscription_original_price) {
                     setPremiumOriginalPrice(data.premium_subscription_original_price);
+                }
+                if (data.premium_subscription_qr_url) {
+                    setPremiumQrUrl(data.premium_subscription_qr_url);
                 }
             } catch (error) {
                 console.error("Failed to fetch settings", error);
@@ -97,11 +101,11 @@ const PlansModal = ({ onClose, user, onUpdateUser }) => {
 
                     <div className="flex justify-center mb-6">
                         <div className="bg-zinc-100 p-4 rounded-xl border-2 border-dashed border-zinc-300">
-                            {/* Placeholder QR using an API or static image */}
+                            {/* Dynamic QR or Fallback */}
                             <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                                src={premiumQrUrl || "https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"}
                                 alt="Payment QR"
-                                className="w-48 h-48 object-contain opacity-50"
+                                className="w-48 h-48 object-contain"
                             />
                             <p className="text-xs text-center mt-2 font-mono text-zinc-400">upi@bankname (Demo)</p>
                         </div>

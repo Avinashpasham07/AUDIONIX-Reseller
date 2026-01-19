@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
-import MainLayout from '../components/MainLayout';
+
 import { FaCheck, FaTimes, FaCrown, FaTrash, FaSearch, FaKey } from 'react-icons/fa';
 
 const AdminResellers = () => {
@@ -18,7 +18,11 @@ const AdminResellers = () => {
                 const response = await api.get('/admin/inactive-users');
                 data = response.data;
             } else {
-                const query = activeTab === 'pending' ? '?status=pending' : '?status=approved';
+                let statusVal = 'approved';
+                if (activeTab === 'pending') statusVal = 'pending';
+                if (activeTab === 'blocked') statusVal = 'blocked';
+
+                const query = `?status=${statusVal}`;
                 const response = await api.get(`/admin/resellers${query}`);
                 data = response.data;
             }
@@ -93,7 +97,7 @@ const AdminResellers = () => {
     });
 
     return (
-        <MainLayout>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <div className="mb-6 p-4 md:p-0 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
                     <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
@@ -119,6 +123,12 @@ const AdminResellers = () => {
                         className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === 'inactive' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-zinc-400 hover:text-white'}`}
                     >
                         Inactive
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('blocked')}
+                        className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === 'blocked' ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                        Blocked
                     </button>
                 </div>
             </div>
@@ -161,6 +171,7 @@ const AdminResellers = () => {
                                 <p><span className="font-semibold text-zinc-300">Mobile:</span> {reseller.mobileNumber || 'N/A'}</p>
                                 <p><span className="font-semibold text-zinc-300">Last Login:</span> {reseller.lastLogin ? new Date(reseller.lastLogin).toLocaleDateString() : 'Never'}</p>
                                 <p><span className="font-semibold text-zinc-300">Last Order:</span> {reseller.lastOrderDate ? new Date(reseller.lastOrderDate).toLocaleDateString() : 'Never'}</p>
+                                {reseller.accountStatus === 'blocked' && <p className="text-red-500 font-bold uppercase mt-2">BLOCKED</p>}
                             </div>
 
                             <div className="mt-auto pt-4 border-t border-zinc-800">
@@ -182,24 +193,32 @@ const AdminResellers = () => {
                                 )}
 
                                 {activeTab === 'all' && (
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleResetPassword(reseller._id, reseller.name)}
-                                            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-xs px-3"
-                                            title="Reset Password"
-                                        >
-                                            <FaKey /> Reset Pass
-                                        </button>
-
-                                        {reseller.subscriptionPlan === 'paid' && (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
                                             <button
-                                                onClick={() => handleDowngrade(reseller._id)}
-                                                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-xs"
-                                                title="Downgrade to Free"
+                                                onClick={() => handleResetPassword(reseller._id, reseller.name)}
+                                                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-xs px-3"
+                                                title="Reset Password"
                                             >
-                                                <FaTrash /> Revoke Premium
+                                                <FaKey /> Reset
                                             </button>
-                                        )}
+
+                                            {reseller.subscriptionPlan === 'paid' && (
+                                                <button
+                                                    onClick={() => handleDowngrade(reseller._id)}
+                                                    className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-xs"
+                                                    title="Downgrade to Free"
+                                                >
+                                                    <FaCrown /> Downgrade
+                                                </button>
+                                            )}
+                                        </div>
+                                        <button
+                                            onClick={() => handleStatusUpdate(reseller._id, 'blocked')}
+                                            className="w-full bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-900 py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-xs shadow-lg"
+                                        >
+                                            <FaTrash /> Block User
+                                        </button>
                                     </div>
                                 )}
 
@@ -211,12 +230,21 @@ const AdminResellers = () => {
                                         <FaTrash /> Revoke Access
                                     </button>
                                 )}
+
+                                {activeTab === 'blocked' && (
+                                    <button
+                                        onClick={() => handleStatusUpdate(reseller._id, 'approved')}
+                                        className="w-full bg-green-600 hover:bg-green-700 text-white border-none py-2 rounded-lg flex justify-center items-center gap-2 font-bold transition text-sm shadow-lg shadow-green-900/20"
+                                    >
+                                        <FaCheck /> Unblock User
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-        </MainLayout>
+        </div>
     );
 };
 

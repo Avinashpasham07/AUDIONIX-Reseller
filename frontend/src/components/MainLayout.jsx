@@ -1,10 +1,10 @@
 import { useState, useContext, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import PlansModal from './PlansModal';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
-
 
 const MainLayout = ({ children }) => {
     const { user, setUser } = useContext(AuthContext);
@@ -54,8 +54,8 @@ const MainLayout = ({ children }) => {
                 <Navbar />
 
                 {/* Content Area */}
-                <main className="flex-1 p-4 pt-20 pb-24 md:p-8 md:pt-24 md:pb-8 max-w-full">
-                    {children}
+                <main className="flex-1 p-4 pt-24 pb-24 md:p-8 md:pt-28 md:pb-8 max-w-full">
+                    {children || <Outlet />}
                 </main>
 
                 <Footer />

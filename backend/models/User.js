@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     kycDocuments: [{ type: String }],
     accountStatus: {
         type: String,
-        enum: ['pending', 'approved', 'rejected', 'inactive'],
+        enum: ['pending', 'approved', 'rejected', 'inactive', 'blocked'],
         default: 'pending'
     },
     subscriptionPlan: {

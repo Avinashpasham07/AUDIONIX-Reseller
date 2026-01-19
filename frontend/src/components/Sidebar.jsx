@@ -46,6 +46,7 @@ const Sidebar = () => {
         { path: '/admin/meetings', icon: <FaCalendarAlt size={20} />, label: 'Schedule Meetings', permission: 'meetings' },
         { path: '/admin/requests', icon: <FaCrown size={20} />, label: 'Premium Requests', permission: 'requests' },
         { path: '/admin/employees', icon: <FaShieldAlt size={20} />, label: 'Manage Employees', permission: 'employees' },
+        { path: '/admin/settings', icon: <FaCog size={20} />, label: 'Settings', permission: 'settings' },
     ];
 
     const getNavItems = () => {
@@ -66,7 +67,7 @@ const Sidebar = () => {
                 className={`fixed left-0 top-0 h-full flex-col bg-zinc-950/95 backdrop-blur-xl border-r border-zinc-800 z-50 transition-all duration-300 hidden md:flex ${isExpanded ? 'w-[250px] shadow-2xl' : 'w-[72px]'}`}
             >
                 {/* --- HEADER / TOGGLE SECTION --- */}
-                <div className={`h-10 flex items-center mb-12 ${isExpanded ? 'px-6 justify-start' : 'justify-center'} whitespace-nowrap`}>
+                <div className={`h-10 mt-10 flex items-center mb-12 ${isExpanded ? 'px-6 justify-start' : 'justify-center'} whitespace-nowrap`}>
                     <button
                         onClick={() => setIsExpanded(!isExpanded)}
                         className="bg-none border-none cursor-pointer text-zinc-100 text-xl flex items-center justify-center p-0 min-w-[40px] hover:bg-zinc-900 rounded-lg h-10 w-10 transition"
@@ -74,9 +75,9 @@ const Sidebar = () => {
                         <FaBars />
                     </button>
 
-                    <div className={`transition-all duration-200 overflow-hidden ${isExpanded ? 'opacity-100 w-auto ml-4' : 'opacity-0 w-0'}`}>
+                    <div className={`transition-all  duration-200 overflow-hidden ${isExpanded ? 'opacity-100 w-auto ml-4' : 'opacity-0 w-0'}`}>
                         <div className="inline-block relative">
-                            <h2 className="m-0 text-2xl font-black italic tracking-tighter text-red-600 leading-none">AUDIONIX</h2>
+                            <h2 className="m-0  text-2xl font-black italic text-red-600 leading-none">AUDIONIX</h2>
                             <span className="absolute -bottom-2 right-0 text-white tracking-widest text-[10px] font-normal lowercase">reseller</span>
                         </div>
                     </div>

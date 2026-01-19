@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import MainLayout from '../components/MainLayout';
 import api from '../services/api';
 import { FaSave, FaQrcode, FaUpload, FaTrash, FaGlobe, FaBuilding, FaCalendarCheck, FaLock } from 'react-icons/fa';
 
@@ -8,6 +7,7 @@ const AdminSettings = () => {
     const [upiId, setUpiId] = useState('');
     const [pixelId, setPixelId] = useState('');
     const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [premiumQrUrl, setPremiumQrUrl] = useState('');
     const [bankName, setBankName] = useState('');
     const [accountHolder, setAccountHolder] = useState('');
     const [accountNumber, setAccountNumber] = useState('');
@@ -44,6 +44,7 @@ const AdminSettings = () => {
             if (data.upi_id) setUpiId(data.upi_id);
             if (data.pixel_id) setPixelId(data.pixel_id);
             if (data.upi_qr_url) setQrCodeUrl(data.upi_qr_url);
+            if (data.premium_subscription_qr_url) setPremiumQrUrl(data.premium_subscription_qr_url);
             if (data.bank_name) setBankName(data.bank_name);
             if (data.account_holder) setAccountHolder(data.account_holder);
             if (data.account_number) setAccountNumber(data.account_number);
@@ -68,7 +69,7 @@ const AdminSettings = () => {
         }
     };
 
-    const handleUpload = async (e) => {
+    const handleUpload = async (e, isPremium = false) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -81,7 +82,13 @@ const AdminSettings = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.dismiss(loadingToast);
-            setQrCodeUrl(data.fullUrl);
+
+            if (isPremium) {
+                setPremiumQrUrl(data.fullUrl);
+            } else {
+                setQrCodeUrl(data.fullUrl);
+            }
+
             toast.success("QR Uploaded! Don't forget to Save.");
         } catch (err) {
             console.error(err);
@@ -143,6 +150,13 @@ const AdminSettings = () => {
                 description: 'URL of the QR Code image for scanning.'
             });
 
+            // Save Premium QR Code URL
+            await api.put('/admin/settings', {
+                key: 'premium_subscription_qr_url',
+                value: premiumQrUrl,
+                description: 'URL of the Premium Subscription QR Code.'
+            });
+
             // Save Bank Details
             await api.put('/admin/settings', { key: 'bank_name', value: bankName, description: 'Bank Name for transfers' });
             await api.put('/admin/settings', { key: 'account_holder', value: accountHolder, description: 'Bank Account Holder Name' });
@@ -178,8 +192,8 @@ const AdminSettings = () => {
     };
 
     return (
-        <MainLayout>
-            <div className="max-w-4xl mx-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
+            <div className="max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
                     Platform Settings<span className="text-red-600">.</span>
                 </h1>
@@ -262,7 +276,7 @@ const AdminSettings = () => {
                                             <input
                                                 type="file"
                                                 accept="image/*"
-                                                onChange={handleUpload}
+                                                onChange={(e) => handleUpload(e, false)}
                                                 className="absolute inset-0 opacity-0 cursor-pointer text-[0]"
                                             />
                                         </div>
@@ -493,6 +507,47 @@ const AdminSettings = () => {
                                 </div>
                                 <p className="text-xs text-zinc-500 mt-2">Optional. Shows as a crossed-out price (e.g. <span className="line-through text-red-400">₹999</span> ₹499).</p>
                             </div>
+
+                            {/* Premium QR Code Upload */}
+                            <div className="pt-6 border-t border-zinc-800">
+                                <label className="block text-sm font-bold text-zinc-400 mb-4">Premium Support/Payment QR</label>
+                                <div className="flex flex-col md:flex-row gap-6 items-start bg-zinc-800/20 p-4 rounded-xl border border-zinc-800/50">
+                                    {/* Preview */}
+                                    <div className="w-32 h-32 bg-zinc-800 rounded-xl border-2 border-dashed border-zinc-700 flex items-center justify-center overflow-hidden relative group shrink-0">
+                                        {premiumQrUrl ? (
+                                            <img src={premiumQrUrl} alt="Premium QR" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <FaQrcode size={24} className="mx-auto opacity-50 text-zinc-500" />
+                                        )}
+                                        {premiumQrUrl && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setPremiumQrUrl('')}
+                                                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white font-bold text-xs backdrop-blur-sm"
+                                            >
+                                                Remove
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="relative inline-block overflow-hidden mb-3">
+                                            <button type="button" className="px-5 py-2.5 bg-zinc-800 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-zinc-700 transition border border-zinc-700 text-sm shadow-sm group-hover:border-zinc-500">
+                                                <FaUpload className="text-zinc-400" /> Upload Premium QR
+                                            </button>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleUpload(e, true)}
+                                                className="absolute inset-0 opacity-0 cursor-pointer text-[0]"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-zinc-300 font-medium">Specific QR for Premium Payments</p>
+                                            <p className="text-xs text-zinc-500 leading-relaxed">This QR code will only be shown in the Premium Upgrade popup. Use this to separate subscription revenue from regular order payments.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -564,7 +619,7 @@ const AdminSettings = () => {
 
                 </form>
             </div>
-        </MainLayout>
+        </div>
     );
 };
 

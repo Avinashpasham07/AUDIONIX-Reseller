@@ -150,7 +150,7 @@ const AdminDashboard = ({ user }) => {
     };
 
     return (
-        <MainLayout>
+        <>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
@@ -399,7 +399,7 @@ const AdminDashboard = ({ user }) => {
                     </div>
                 </div>
             )}
-        </MainLayout>
+        </>
     );
 };
 
@@ -523,8 +523,9 @@ const ResellerDashboard = ({ user }) => {
         </tr>
     );
 
+
     return (
-        <MainLayout>
+        <>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
@@ -661,42 +662,39 @@ const ResellerDashboard = ({ user }) => {
                     onUpdateUser={setUser}
                 />
             )}
-        </MainLayout>
+        </>
     );
 };
 
 // --- 3. HELPER VIEWS ---
 const PendingResellerView = ({ user }) => (
-    <MainLayout>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
-            <div className="glass-panel" style={{ padding: '3rem', borderRadius: '16px', maxWidth: '500px' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-                <h2 className="text-gradient">Verification in Progress</h2>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                    Thank you for registering! Our team is currently reviewing your business details.
-                    <br /><br />
-                    <strong>Verify Mobile:</strong> {user.mobileNumber || 'N/A'}<br />
-                    <strong>Verify GST:</strong> {user.businessDetails?.gstNumber || 'N/A'}
-                </p>
-                <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>You will receive an email once approved.</p>
-            </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
+        <div className="glass-panel" style={{ padding: '3rem', borderRadius: '16px', maxWidth: '500px' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
+            <h2 className="text-gradient">Verification in Progress</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                Thank you for registering! Our team is currently reviewing your business details.
+                <br /><br />
+                <strong>Verify Mobile:</strong> {user.mobileNumber || 'N/A'}<br />
+                <strong>Verify GST:</strong> {user.businessDetails?.gstNumber || 'N/A'}
+            </p>
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>You will receive an email once approved.</p>
         </div>
-    </MainLayout>
+    </div>
 );
 
+
 const RejectedResellerView = () => (
-    <MainLayout>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
-            <div className="glass-panel" style={{ padding: '3rem', borderRadius: '16px', maxWidth: '500px', border: '1px solid var(--error)' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚫</div>
-                <h2 style={{ color: 'var(--error)' }}>Account Rejected</h2>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-                    Unfortunately, your reseller application has been rejected.
-                    Please contact support for more details.
-                </p>
-            </div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
+        <div className="glass-panel" style={{ padding: '3rem', borderRadius: '16px', maxWidth: '500px', border: '1px solid var(--error)' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚫</div>
+            <h2 style={{ color: 'var(--error)' }}>Account Rejected</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                Unfortunately, your reseller application has been rejected.
+                Please contact support for more details.
+            </p>
         </div>
-    </MainLayout>
+    </div>
 );
 
 // --- 4. MAIN DASHBOARD DISPATCHER ---
@@ -716,11 +714,9 @@ const Dashboard = () => {
     }
 
     return (
-        <MainLayout>
-            <div className="p-10 text-center text-zinc-500">
-                Unauthorized access or invalid role.
-            </div>
-        </MainLayout>
+        <div className="p-10 text-center text-zinc-500">
+            Unauthorized access or invalid role.
+        </div>
     );
 };
 

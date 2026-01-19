@@ -274,7 +274,7 @@ exports.getAnalytics = async (req, res) => {
         // Save to cache
         analyticsCache.set(cacheKey, responseData);
 
-        console.log(`[ADMIN ANALYTICS] Result: ${timelineData.length} entries found, ${recentOrders.length} recent orders.`);
+        // console.log(`[ADMIN ANALYTICS] Result: ${timelineData.length} entries found, ${recentOrders.length} recent orders.`);
 
         return res.json(responseData);
 
@@ -302,7 +302,7 @@ exports.getSettings = async (req, res) => {
 // @route   PUT /api/admin/settings
 // @access  Private (Admin)
 exports.updateSettings = async (req, res) => {
-    console.log("UPDATE SETTINGS BODY:", req.body);
+    // console.log("UPDATE SETTINGS BODY:", req.body);
     try {
         const { key, value, description } = req.body;
 
@@ -328,21 +328,25 @@ exports.updateSettings = async (req, res) => {
 exports.getResellers = async (req, res) => {
     try {
         const { status } = req.query;
-        // Cache key
-        const cacheKey = `resellers_list_${status || 'all'}`;
-        const cached = analyticsCache.get(cacheKey);
+        // console.log(`[Backend] getResellers called. Status: ${status}`); // DEBUG
 
-        if (cached) return res.json(cached);
+        // Cache key
+        // const cacheKey = `resellers_list_${status || 'all'}`;
+        // const cached = analyticsCache.get(cacheKey);
+
+        // if (cached) return res.json(cached);
 
         let query = { role: 'reseller' };
 
         if (status) {
             query.accountStatus = status;
         }
+        // console.log(`[Backend] MongoDB Query:`, query); // DEBUG
 
         const resellers = await User.find(query).select('-password').lean();
+        // console.log(`[Backend] Found ${resellers.length} resellers`); // DEBUG
 
-        analyticsCache.set(cacheKey, resellers, 120);
+        // analyticsCache.set(cacheKey, resellers, 120);
         res.json(resellers);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -361,7 +365,7 @@ exports.updateResellerStatus = async (req, res) => {
             return res.status(404).json({ message: 'Reseller not found' });
         }
 
-        if (!['approved', 'rejected', 'pending'].includes(status)) {
+        if (!['approved', 'rejected', 'pending', 'blocked'].includes(status)) {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
@@ -392,34 +396,34 @@ exports.updateResellerStatus = async (req, res) => {
 // @access  Private (Admin)
 exports.getSubscriptionRequests = async (req, res) => {
     try {
-        console.log('[DEBUG] getSubscriptionRequests called. Query:', req.query);
+        // console.log('[DEBUG] getSubscriptionRequests called. Query:', req.query);
         const { status } = req.query;
         // Cache key based on filter status
         const cacheKey = `sub_requests_${status || 'all'}`;
-        console.log('[DEBUG] Cache Key:', cacheKey);
+        // console.log('[DEBUG] Cache Key:', cacheKey);
 
         const cached = analyticsCache.get(cacheKey);
 
         if (cached) {
-            console.log('[DEBUG] Serving from cache');
+            // console.log('[DEBUG] Serving from cache');
             return res.json(JSON.parse(cached));
         }
 
         const filter = status ? { 'subscriptionRequest.status': status } : { 'subscriptionRequest.status': { $ne: null } };
-        console.log('[DEBUG] DB Filter:', filter);
+        // console.log('[DEBUG] DB Filter:', filter);
 
         const users = await User.find(filter)
             .select('name email mobileNumber subscriptionRequest subscriptionExpiry subscriptionPlan subscriptionHistory')
             .lean();
 
-        console.log('[DEBUG] DB Fetch success. Users found:', users.length);
+        // console.log('[DEBUG] DB Fetch success. Users found:', users.length);
 
         analyticsCache.set(cacheKey, JSON.stringify(users), 120); // Cache string to avoid deep clone issues
-        console.log('[DEBUG] Cache set success');
+        // console.log('[DEBUG] Cache set success');
 
         res.json(users);
     } catch (error) {
-        console.error('[DEBUG] Error in getSubscriptionRequests:', error);
+        console.error('Error in getSubscriptionRequests:', error);
         res.status(500).json({ message: error.message });
     }
 };

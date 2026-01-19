@@ -26,14 +26,10 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        console.log("Attempting login for:", email);
         try {
             const { data } = await api.post('/auth/login', { email, password });
-            console.log("Login success:", data);
             localStorage.setItem('token', data.token);
-            const profile = await api.get('/auth/me');
-            console.log("User Profile Fetched:", profile.data);
-            setUser(profile.data); // Fixed: Removed .data
+            setUser(data); // Backend now returns full user profile on login
             return data;
         } catch (error) {
             console.error("AuthContext Login Error:", error);

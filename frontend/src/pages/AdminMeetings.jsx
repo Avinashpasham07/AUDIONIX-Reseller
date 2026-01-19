@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import MainLayout from '../components/MainLayout';
 import api from '../services/api';
 import { FaCalendarCheck, FaClock, FaCommentDots, FaWhatsapp } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -57,11 +56,11 @@ const AdminMeetings = () => {
     }).sort((a, b) => new Date(b.preferredDate) - new Date(a.preferredDate));
 
     if (loading) {
-        return <MainLayout><div className="flex justify-center items-center h-screen text-zinc-500">Loading requests...</div></MainLayout>;
+        return <div className="flex justify-center items-center h-screen text-zinc-500">Loading requests...</div>;
     }
 
     return (
-        <MainLayout>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
@@ -245,7 +244,7 @@ const AdminMeetings = () => {
                     &copy; Audionix Internal Support System v2.0
                 </p>
             </div>
-        </MainLayout>
+        </div>
     );
 };
 
