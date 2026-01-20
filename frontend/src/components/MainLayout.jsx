@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import PlansModal from './PlansModal';
@@ -55,7 +55,13 @@ const MainLayout = ({ children }) => {
 
                 {/* Content Area */}
                 <main className="flex-1 p-4 pt-24 pb-24 md:p-8 md:pt-28 md:pb-8 max-w-full">
-                    {children || <Outlet />}
+                    <Suspense fallback={
+                        <div className="flex flex-col items-center justify-center p-20 h-full">
+                            <div className="w-8 h-8 border-4 border-zinc-800 border-t-red-600 rounded-full animate-spin mb-4"></div>
+                        </div>
+                    }>
+                        {children || <Outlet />}
+                    </Suspense>
                 </main>
 
                 <Footer />
