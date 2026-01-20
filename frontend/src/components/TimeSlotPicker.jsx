@@ -18,8 +18,8 @@ const TimeSlotPicker = ({ slots, selectedSlot, onSelect, loading }) => {
                 <div className="w-12 h-12 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-600 mb-3">
                     <FaClock size={20} />
                 </div>
-                <p className="text-zinc-500 text-sm font-medium">No available slots for today.</p>
-                <p className="text-zinc-600 text-[10px] uppercase font-bold tracking-tighter mt-1">Please try another date</p>
+                <p className="text-zinc-500 text-sm font-medium">Today's slots completed.</p>
+                <p className="text-zinc-600 text-[10px] uppercase font-bold tracking-tighter mt-1">Please check back tomorrow</p>
             </div>
         );
     }

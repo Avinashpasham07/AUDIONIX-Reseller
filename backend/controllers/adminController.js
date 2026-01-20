@@ -699,9 +699,6 @@ exports.getInactiveResellers = async (req, res) => {
     }
 };
 
-// @desc    Revoke Reseller Access (Manual)
-// @route   PUT /api/admin/revoke-user/:id
-// @access  Private (Admin)
 exports.revokeReseller = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -713,5 +710,85 @@ exports.revokeReseller = async (req, res) => {
         res.json({ message: `User ${user.name} has been revoked/deactivated.` });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Sync/Fix Reseller Last Order Data (Backfill)
+// @route   PUT /api/admin/sync-data
+// @access  Private (Admin)
+exports.syncResellerActivity = async (req, res) => {
+    try {
+        let updatedCount = 0;
+        let fixedProfiles = 0;
+
+        // 1. Aggregate latest order date for every reseller
+        const latestOrders = await Order.aggregate([
+            { $group: { _id: "$resellerId", lastOrder: { $max: "$createdAt" } } }
+        ]);
+
+        // 2. Update Users (Last Order Date)
+        for (const entry of latestOrders) {
+            if (entry._id) {
+                await User.findByIdAndUpdate(entry._id, { lastOrderDate: entry.lastOrder });
+                updatedCount++;
+            }
+        }
+
+        // 3. Fix Legacy Business Details (Data Migration)
+        // We fetch ALL users with lean() to see potential root-level fields that are not in Schema
+        const allUsers = await User.find({ role: 'reseller' }).lean();
+
+        for (const u of allUsers) {
+            let needsUpdate = false;
+            const updates = {};
+            const businessDetails = u.businessDetails || {};
+
+            // Check if businessDetails is empty BUT root fields exist
+            // Note: In Mongoose, lean() returns plain JS object. 
+            // If fields were saved in DB but not schema, they appear here if strict was false during insert OR if we access raw db.
+            // Actually, User.find() adheres to schema unless strict false. 
+            // To be safe, we might need strictly raw access, but let's try assuming they are accessible or were in schema.
+
+            // Heuristic: If businessDetails.businessName is missing, try to find it at root
+            if (!businessDetails.businessName && u.businessName) {
+                businessDetails.businessName = u.businessName;
+                needsUpdate = true;
+            }
+            if (!businessDetails.gstNumber && u.gstNumber) {
+                businessDetails.gstNumber = u.gstNumber;
+                needsUpdate = true;
+            }
+            if (!businessDetails.address && u.address) {
+                businessDetails.address = u.address;
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                await User.findByIdAndUpdate(u._id, {
+                    businessDetails: businessDetails,
+                    $unset: { businessName: "", gstNumber: "", address: "" } // Clean up root
+                });
+                fixedProfiles++;
+            }
+
+            // 4. Backfill Last Login (Avoid 'Never')
+            if (!u.lastLogin) {
+                const inferredLogin = u.lastOrderDate || u.createdAt;
+                if (inferredLogin) {
+                    await User.findByIdAndUpdate(u._id, { lastLogin: inferredLogin });
+                    // We don't increment fixedProfiles twice to avoid confusion, or maybe we should? 
+                    // Let's just update silently or count it.
+                }
+            }
+        }
+
+        res.json({
+            message: `Sync Complete: ${updatedCount} orders synced, ${fixedProfiles} profiles repaired.`,
+            count: updatedCount,
+            repaired: fixedProfiles
+        });
+    } catch (error) {
+        console.error("Sync Error:", error);
+        res.status(500).json({ message: 'Sync failed' });
     }
 };

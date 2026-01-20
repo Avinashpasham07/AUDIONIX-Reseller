@@ -235,10 +235,13 @@ const Checkout = () => {
 
         // 2. STANDARD VALIDATION
         if (shippingMethod === 'self') {
-            // Auto-fill dummy address for Self Ship as form is hidden
-            if (!shippingLabelUrl) {
-                // optional warning
+            // Updated Requirement: Mandatory FILE UPLOAD for Self Ship
+            // Check for Single Label or Multiple Labels (Bulk)
+            if (!shippingLabelUrl && bulkFiles.length === 0 && !bulkFileUrl) {
+                return toast.error("Please upload the Shipping Label / Bill to proceed.");
             }
+
+            // Auto-fill dummy address for Self Ship as form is hidden
             setAddress({
                 name: 'Self Ship Reseller',
                 phone: '9999999999',
@@ -304,12 +307,8 @@ const Checkout = () => {
                 quantity: item.quantity
             }));
 
-            // Validate Margin
-            if (margin < 0) {
-                toast.error('Customer price cannot be less than Total Payable amount');
-                setLoading(false);
-                return;
-            }
+            // Margin can be negative (Reseller can sell at loss)
+            // if (margin < 0) { ... } validation removed
 
             if (!utr || !screenshotUrl) {
                 toast.error("Please provide payment details (UTR & Screenshot)");
@@ -727,7 +726,7 @@ const Checkout = () => {
                             <div className="flex justify-between items-center mt-2 text-lg text-white border-t border-dashed border-zinc-700 pt-2">
                                 <span>Your Margin:</span>
                                 <span className={`font-bold ${margin >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                    ₹{margin > 0 ? margin.toLocaleString() : 0}
+                                    ₹{margin.toLocaleString()}
                                 </span>
                             </div>
                             <div className="text-xs text-zinc-500 text-right mt-1">
@@ -865,7 +864,7 @@ const Checkout = () => {
                     </form>
                 )}
             </div>
-        </MainLayout>
+        </MainLayout >
     );
 };
 

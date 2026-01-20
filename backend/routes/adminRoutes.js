@@ -15,7 +15,8 @@ const {
     updateEmployeePermissions,
     deleteEmployee,
     getInactiveResellers,
-    revokeReseller
+    revokeReseller,
+    syncResellerActivity
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -28,6 +29,7 @@ router.route('/resellers/:id/status')
 // Inactive Reseller Management
 router.get('/inactive-users', protect, admin, getInactiveResellers);
 router.put('/revoke-user/:id', protect, admin, revokeReseller);
+router.put('/sync-data', protect, admin, syncResellerActivity);
 
 // Analytics - Admin Only
 router.get('/analytics', protect, admin, getAnalytics);

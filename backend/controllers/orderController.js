@@ -113,6 +113,9 @@ exports.createOrder = async (req, res) => {
         // Using distinct async call to not block response
         (async () => {
             try {
+                // Update User's Last Order Date immediately
+                await User.findByIdAndUpdate(req.user._id, { lastOrderDate: Date.now() });
+
                 const admins = await User.find({ role: 'admin' }).select('_id');
                 if (admins.length > 0) {
                     const notifications = admins.map(admin => ({

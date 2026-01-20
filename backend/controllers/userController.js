@@ -88,6 +88,15 @@ exports.updateUserProfile = async (req, res) => {
             user.email = req.body.email || user.email;
             user.mobileNumber = req.body.mobileNumber || user.mobileNumber;
 
+            // Update Business Details
+            if (req.body.businessName || req.body.gstNumber || req.body.address) {
+                user.businessDetails = {
+                    businessName: req.body.businessName || user.businessDetails?.businessName,
+                    gstNumber: req.body.gstNumber || user.businessDetails?.gstNumber,
+                    address: req.body.address || user.businessDetails?.address
+                };
+            }
+
             if (req.body.password) {
                 if (req.body.currentPassword && await user.matchPassword(req.body.currentPassword)) {
                     user.password = req.body.password;
@@ -103,6 +112,8 @@ exports.updateUserProfile = async (req, res) => {
                 name: updatedUser.name,
                 email: updatedUser.email,
                 role: updatedUser.role,
+                mobileNumber: updatedUser.mobileNumber,
+                businessDetails: updatedUser.businessDetails,
                 token: generateToken(updatedUser._id), // Optional: Refresh token if needed
             });
         } else {

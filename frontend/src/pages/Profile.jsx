@@ -163,12 +163,129 @@ const Profile = () => {
                     </div>
                 </div>
 
+                {/* Edit Profile Button */}
+                <div className='flex justify-end mt-6'>
+                    <EditProfileButton user={user} />
+                </div>
+
             </div>
 
             {/* Change Password Section */}
             <div className="mt-8 glass-panel p-6 md:p-10 rounded-3xl w-full mx-auto shadow-lg bg-zinc-900 border border-zinc-800">
                 <h2 className="text-2xl font-bold text-white mb-6">Change Password</h2>
                 <ChangePasswordForm />
+            </div>
+        </div>
+    );
+};
+
+const EditProfileButton = ({ user }) => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return (
+        <>
+            <button
+                onClick={() => setIsOpen(true)}
+                className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3 rounded-xl font-bold transition flex items-center gap-2 border border-zinc-700 shadow-lg"
+            >
+                Edit Profile Details
+            </button>
+            {isOpen && <EditProfileModal user={user} onClose={() => setIsOpen(false)} />}
+        </>
+    );
+};
+
+const EditProfileModal = ({ user, onClose }) => {
+    const { login } = useContext(AuthContext); // To update context
+    const [formData, setFormData] = React.useState({
+        name: user.name || '',
+        email: user.email || '',
+        mobileNumber: user.mobileNumber || '',
+        businessName: user.businessDetails?.businessName || '',
+        gstNumber: user.businessDetails?.gstNumber || '',
+        address: user.businessDetails?.address || ''
+    });
+    const [loading, setLoading] = React.useState(false);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const { data } = await api.put('/users/profile', formData);
+            // Update Auth Context with new data
+            // data contains: token, name, email, role, mobileNumber, businessDetails
+            // login function expects (user, token) or just data depending on implementation.
+            // Let's check AuthContext implementation or assume we might need to reload or just toast success if context doesn't auto-update.
+            // Ideally AuthContext should have an 'updateUser' method.
+            // If not, we can trigger a crude reload or just rely on the API success.
+            // For now, let's try to update storage if login() isn't robust enough for partial updates.
+
+            // Actually, best DX: Toast + maybe reload or update context manually if possible.
+            // checking login signature: likely (userData, token).
+            if (data.token) {
+                localStorage.setItem('userInfo', JSON.stringify(data));
+                window.location.reload(); // Simple RELOAD to ensure Context picks up fresh data from LocalStorage
+            }
+
+            // onClose(); // Reload will handle close
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update profile");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+            <div className="bg-zinc-900 border border-zinc-700 p-8 rounded-3xl w-full max-w-lg relative shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <h2 className="text-2xl font-bold text-white mb-6">Edit Profile</h2>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Personal Info */}
+                    <div className="space-y-4">
+                        <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-wider border-b border-zinc-800 pb-2">Personal Details</h3>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">Full Name</label>
+                            <input name="name" value={formData.name} onChange={handleChange} className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500" />
+                        </div>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">Email</label>
+                            <input name="email" value={formData.email} onChange={handleChange} className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500" />
+                        </div>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">Mobile</label>
+                            <input name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500" />
+                        </div>
+                    </div>
+
+                    {/* Business Info */}
+                    <div className="space-y-4 mt-6">
+                        <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-wider border-b border-zinc-800 pb-2">Business Details</h3>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">Business Name</label>
+                            <input name="businessName" value={formData.businessName} onChange={handleChange} className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500" />
+                        </div>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">GST Number</label>
+                            <input name="gstNumber" value={formData.gstNumber} onChange={handleChange} className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500" />
+                        </div>
+                        <div>
+                            <label className="block text-zinc-400 text-xs font-bold mb-1">Address</label>
+                            <textarea name="address" value={formData.address} onChange={handleChange} rows="3" className="w-full bg-zinc-800 border-zinc-700 text-white rounded-lg px-3 py-2 text-sm outline-none focus:border-red-500 resize-none" />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                        <button type="button" onClick={onClose} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white py-3 rounded-xl font-bold transition">Cancel</button>
+                        <button type="submit" disabled={loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold transition">
+                            {loading ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

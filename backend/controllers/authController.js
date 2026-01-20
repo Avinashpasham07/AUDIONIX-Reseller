@@ -112,6 +112,7 @@ exports.loginUser = async (req, res) => {
                 subscriptionPlan: user.subscriptionPlan,
                 subscriptionExpiry: user.subscriptionExpiry,
                 accountStatus: user.accountStatus,
+                lastLogin: user.lastLogin,
                 permissions: user.permissions, // Include permissions for Employees
                 token: generateToken(user._id)
             });
@@ -132,6 +133,11 @@ exports.getMe = async (req, res) => {
         if (user.accountStatus === 'blocked') {
             return res.status(403).json({ message: 'Account blocked' });
         }
+
+        // Update Last Login (Activity Tracking for persistent sessions)
+        user.lastLogin = Date.now();
+        await user.save();
+
         res.json({
             _id: user.id,
             name: user.name,
@@ -142,6 +148,7 @@ exports.getMe = async (req, res) => {
             subscriptionPlan: user.subscriptionPlan,
             subscriptionExpiry: user.subscriptionExpiry,
             accountStatus: user.accountStatus,
+            lastLogin: user.lastLogin, // Return the updated timestamp
             permissions: user.permissions // Include permissions for Employees
         });
     } else {

@@ -3,6 +3,7 @@ const Settings = require('../models/Settings');
 
 exports.getAvailableSlots = async (dateStr) => {
     // 1. Fetch working hours from settings (default 9-5)
+    // ADMIN SETTINGS are assumed to be in IST
     const startSetting = await Settings.findOne({ key: 'work_start' });
     const endSetting = await Settings.findOne({ key: 'work_end' });
 
@@ -12,71 +13,91 @@ exports.getAvailableSlots = async (dateStr) => {
     const [startH, startM] = startTimeStr.split(':').map(Number);
     const [endH, endM] = endTimeStr.split(':').map(Number);
 
-    // 2. Define working hours for the specific date (Explicit Local Time)
+    // 2. Define working hours for the specific date
+    // We construct these dates treating them as "Abstract Time" (matching Admin's IST intent)
+    // Date parsing 'YYYY-MM-DD' usually parses as UTC midnight
     const [year, month, day] = dateStr.split('-').map(Number);
 
-    const startDate = new Date(year, month - 1, day);
-    startDate.setHours(startH, startM, 0, 0);
+    const slotCursor = new Date(Date.UTC(year, month - 1, day, startH, startM, 0));
+    const dayEndLimit = new Date(Date.UTC(year, month - 1, day, endH, endM, 0));
 
-    const endDate = new Date(year, month - 1, day);
-    endDate.setHours(endH, endM, 0, 0);
-
-    // 3. Fetch all existing "scheduled" or "pending" meetings for this date
-    const dayStart = new Date(year, month - 1, day);
-    dayStart.setHours(0, 0, 0, 0);
-
-    const dayEnd = new Date(year, month - 1, day);
-    dayEnd.setHours(23, 59, 59, 999);
-
-    console.log(`[DEBUG] Fetching slots for: ${dateStr}`);
-    console.log(`[DEBUG] dayStart: ${dayStart.toISOString()} (Local: ${dayStart.toString()})`);
-    console.log(`[DEBUG] dayEnd: ${dayEnd.toISOString()} (Local: ${dayEnd.toString()})`);
+    // 3. Fetch existing meetings (Stored as ISO Strings)
+    // We search for meetings that overlap with this Day's range in UTC
+    const searchStart = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    const searchEnd = new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
 
     const existingMeetings = await MeetingRequest.find({
-        preferredDate: { $gte: dayStart, $lte: dayEnd },
+        preferredDate: { $gte: searchStart, $lte: searchEnd },
         status: { $in: ['pending', 'scheduled'] }
     });
 
-    console.log(`[DEBUG] Found ${existingMeetings.length} existing meetings`);
-    existingMeetings.forEach(m => console.log(`[DEBUG] Existing: ${m.preferredDate.toISOString()} (${m.status})`));
+    // 4. Calculate "Current Time" in IST to filter out past slots
+    // Create a Date object representing "Now" in IST
+    const nowUTC = new Date();
+    // Offset UTC to IST (+5.5 hours)
+    const nowIST = new Date(nowUTC.getTime() + (5.5 * 60 * 60 * 1000));
+    const currentHourIST = nowIST.getUTCHours();
+    const currentMinuteIST = nowIST.getUTCMinutes();
 
-    // 4. Generate 30-minute slots
+    // We need 'nowIST' to be comparable to 'slotCursor' (which is Year-Month-Day Hour:Min in UTC-representation-of-IST)
+    // So we effectively shift "Now" to align with the "Abstract IST" of slotCursor
+    // Actually, since slotCursor is created with Date.UTC(...), it effectively IS the time at Greenwich.
+    // If we want it to represent IST, we just compare it vs "Now shifted to IST".
+    // Example: Slot is 09:00. slotCursor is 09:00 UTC.
+    // Real Time is 04:00 UTC (09:30 IST).
+    // nowIST calculated above will be 09:30 (epoch shifted).
+    // Comparing 09:00 < 09:30 works!
+
     const slots = [];
-    let current = new Date(startDate);
 
-    while (current < endDate) {
-        const slotStart = new Date(current);
-        const slotEnd = new Date(current.getTime() + 30 * 60000);
+    while (slotCursor < dayEndLimit) {
+        const slotStart = new Date(slotCursor);
+        const slotEnd = new Date(slotCursor.getTime() + 30 * 60000); // +30 mins
 
-        // Check for collision with existing meetings
-        // We assume preferredDate is the EXACT start time for internal bookings
-        let isBusy = existingMeetings.some(meet => {
-            const mStart = new Date(meet.preferredDate);
-            const mEnd = new Date(mStart.getTime() + 30 * 60000);
+        // A. Past Time Check (Strict IST)
+        let isBusy = false;
 
-            // Overlap logic: (StartA < EndB) and (EndA > StartB)
-            // Debug overlap check
-            const overlap = (slotStart < mEnd && slotEnd > mStart);
-            if (overlap) {
-                console.log(`[DEBUG] Collision detected! Slot: ${slotStart.toISOString()} overlaps with Meeting: ${mStart.toISOString()}`);
+        // Only check "Past" if the requested date is Today (IST)
+        // Check if dateStr matches today's IST date
+        const todayISTStr = nowIST.toISOString().split('T')[0];
+
+        if (dateStr === todayISTStr) {
+            if (slotStart < nowIST) {
+                isBusy = true;
             }
-            return overlap;
-        });
-
-        // 5. Also check if slot is in the past (for today)
-        if (slotStart < new Date()) {
+        } else if (dateStr < todayISTStr) {
+            // Entire day is in the past
             isBusy = true;
         }
 
+        // B. Overlap Check
         if (!isBusy) {
+            const isOverlap = existingMeetings.some(meet => {
+                const mStart = new Date(meet.preferredDate);
+                const mEnd = new Date(mStart.getTime() + 30 * 60000);
+                return (slotStart < mEnd && slotEnd > mStart);
+            });
+            if (isOverlap) isBusy = true;
+        }
+
+        if (!isBusy) {
+            // Format Label (HH:MM UTC because we stuffed IST time into UTC slots)
+            const label = slotStart.toLocaleTimeString('en-US', {
+                timeZone: 'UTC',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+
             slots.push({
                 start: slotStart.toISOString(),
                 end: slotEnd.toISOString(),
-                label: slotStart.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+                label: label
             });
         }
 
-        current = slotEnd;
+        // Increment by 30 mins
+        slotCursor.setMinutes(slotCursor.getMinutes() + 30);
     }
 
     return slots;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 
-import { FaCheck, FaTimes, FaCrown, FaTrash, FaSearch, FaKey } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaCrown, FaTrash, FaSearch, FaKey, FaSync } from 'react-icons/fa';
 
 const AdminResellers = () => {
     const [resellers, setResellers] = useState([]);
@@ -85,6 +85,19 @@ const AdminResellers = () => {
         }
     };
 
+    const handleSyncData = async () => {
+        if (!window.confirm("This will scan ALL orders and update 'Last Order Date' for every reseller. Continue?")) return;
+        const toastId = toast.loading("Syncing Data...");
+        try {
+            const { data } = await api.put('/admin/sync-data');
+            toast.success(data.message, { id: toastId });
+            fetchResellers();
+        } catch (error) {
+            console.error(error);
+            toast.error("Sync Failed", { id: toastId });
+        }
+    };
+
     const filteredResellers = resellers.filter(reseller => {
         if (!searchTerm) return true;
         const term = searchTerm.toLowerCase();
@@ -133,10 +146,8 @@ const AdminResellers = () => {
                 </div>
             </div>
 
-            {/* SEARCH BAR */}
-            <div className="mb-6 px-4 md:px-0">
+            <div className="mb-6 px-4 md:px-0 flex justify-between items-center gap-4">
                 <div className="relative w-full md:w-[400px]">
-
                     <input
                         type="text"
                         placeholder="Search by Name, Email, Business..."
@@ -144,7 +155,14 @@ const AdminResellers = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full py-3 pl-10 pr-4 rounded-xl border border-zinc-800 bg-zinc-900 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 placeholder-zinc-500"
                     />
+                    <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                 </div>
+                <button
+                    onClick={handleSyncData}
+                    className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-3 rounded-xl font-bold text-sm transition border border-zinc-700 hover:text-white hover:border-zinc-500"
+                >
+                    <FaSync /> <span className="hidden md:inline">Sync Data</span>
+                </button>
             </div>
 
             {loading ? (
