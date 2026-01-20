@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../services/api';
-import MainLayout from '../components/MainLayout';
+
 import { FaSave, FaArrowLeft, FaImage, FaUpload, FaTrash } from 'react-icons/fa';
 
 const AdminProductForm = () => {
@@ -204,7 +204,7 @@ const AdminProductForm = () => {
     };
 
     return (
-        <MainLayout>
+        <>
             <div className="max-w-4xl mx-auto p-4 md:p-6">
                 <button
                     onClick={() => navigate('/admin/products')}
@@ -505,7 +505,7 @@ const AdminProductForm = () => {
                     </form>
                 </div>
             </div>
-        </MainLayout>
+        </>
     );
 };
 

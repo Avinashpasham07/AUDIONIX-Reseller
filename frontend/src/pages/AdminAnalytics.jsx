@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import MainLayout from '../components/MainLayout';
+
 import api from '../services/api';
 import { FaUsers, FaUserPlus, FaShoppingCart, FaExchangeAlt, FaArrowRight, FaTimes, FaAddressBook } from 'react-icons/fa';
 import { Bar } from 'react-chartjs-2';
@@ -55,7 +55,7 @@ const AdminAnalytics = () => {
     };
 
     if (loading || !stats) {
-        return <MainLayout><div className="flex justify-center items-center h-screen text-zinc-500">Loading Analytics...</div></MainLayout>;
+        return <div className="flex justify-center items-center h-screen text-zinc-500">Loading Analytics...</div>;
     }
 
     // Determine which data bucket to show
@@ -160,7 +160,7 @@ const AdminAnalytics = () => {
     );
 
     return (
-        <MainLayout>
+        <>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
@@ -393,7 +393,7 @@ const AdminAnalytics = () => {
                     </div>
                 </div>
             )}
-        </MainLayout>
+        </>
     );
 };
 

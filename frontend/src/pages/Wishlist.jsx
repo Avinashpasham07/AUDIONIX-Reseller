@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import MainLayout from '../components/MainLayout';
+
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 import { FaHeart, FaTrash } from 'react-icons/fa';
@@ -35,7 +35,7 @@ const Wishlist = () => {
     };
 
     return (
-        <MainLayout>
+        <>
             <div className="p-4 md:p-8 max-w-7xl mx-auto">
                 <h1 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3 text-white">
                     <FaHeart className="text-red-600" /> My Wishlist
@@ -116,7 +116,7 @@ const Wishlist = () => {
                     </div>
                 )}
             </div>
-        </MainLayout >
+        </>
     );
 };
 

@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import MainLayout from '../components/MainLayout';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 import { usePixel } from '../context/PixelContext';
@@ -367,10 +366,10 @@ const Checkout = () => {
         }
     };
 
-    if (cart.length === 0 && !directBuyItem) return <MainLayout><h2>Cart is empty</h2></MainLayout>;
+    if (cart.length === 0 && !directBuyItem) return <div className="text-center p-8 text-white"><h2>Cart is empty</h2></div>;
 
     return (
-        <MainLayout>
+        <>
             <h1 className="text-gradient text-2xl md:text-3xl font-bold mb-8">Checkout</h1>
 
             {/* Stepper */}
@@ -864,7 +863,7 @@ const Checkout = () => {
                     </form>
                 )}
             </div>
-        </MainLayout >
+        </>
     );
 };
 
