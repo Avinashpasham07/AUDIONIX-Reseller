@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
@@ -7,6 +7,7 @@ import { PixelProvider } from './context/PixelContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
 import ErrorBoundary from './components/ErrorBoundary';
+import api from './services/api';
 
 // Lazy Load Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -43,6 +44,20 @@ const PageLoader = () => (
 );
 
 function App() {
+  // WAKE UP BACKEND (Cold Start Handling)
+  useEffect(() => {
+    const wakeUpBackend = async () => {
+      try {
+        await api.get('/ping');
+        console.log("Backend Woken Up 🚀");
+      } catch (err) {
+        // Silent fail (it might just be waking up)
+        console.log("Backend waking up...", err);
+      }
+    };
+    wakeUpBackend();
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>
