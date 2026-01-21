@@ -1,3 +1,4 @@
+import { Suspense, lazy, useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 
 // ... (previous imports)

@@ -71,8 +71,8 @@ const LandingPage = () => {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Audionix Reseller",
-        "url": "https://audionix-reseller.vercel.app",
-        "logo": "https://audionix-reseller.vercel.app/assets/logo.png",
+        "url": "https://www.audionixresellers.com",
+        "logo": "https://www.audionixresellers.com/assets/logo.png",
         "sameAs": [
             "https://www.instagram.com/audionix.resellers",
             "https://chat.whatsapp.com/EICnjNAugtsHnSYwlOeIoo"
