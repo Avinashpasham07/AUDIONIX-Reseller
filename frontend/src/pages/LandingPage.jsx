@@ -40,6 +40,10 @@ const Counter = ({ end, duration = 2000 }) => {
     return <span>{count.toLocaleString()}</span>;
 };
 
+import SEO from '../components/SEO';
+
+// ... (previous imports and Counter component)
+
 const LandingPage = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -63,8 +67,30 @@ const LandingPage = () => {
         setMobileMenuOpen(false);
     };
 
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Audionix Reseller",
+        "url": "https://audionix-reseller.com",
+        "logo": "https://audionix-reseller.com/assets/logo.png",
+        "sameAs": [
+            "https://www.instagram.com/audionix.resellers",
+            "https://chat.whatsapp.com/EICnjNAugtsHnSYwlOeIoo"
+        ],
+        "description": "Start your own reseller business with zero inventory and zero investment. Audionix connects you with wholesale suppliers."
+    };
+
     return (
         <div className="min-h-screen bg-black text-white font-sans selection:bg-red-900 selection:text-white overflow-x-hidden">
+            <SEO
+                title="Best Reselling App in India - Zero Investment Business"
+                description="Join Audionix Resellers to start your online business without inventory. Get wholesale prices, single-piece shipping, and high profit margins. Verified suppliers."
+                keywords="Audionix, Reseller App, Work from Home, Wholesale Business, Zero Investment, Dropshipping India, Audionix Reseller"
+            />
+            <script type="application/ld+json">
+                {JSON.stringify(structuredData)}
+            </script>
+
             {/* Navbar */}
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-xl border-b border-zinc-800 shadow-lg py-3' : 'bg-transparent py-5'}`}>
                 <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
