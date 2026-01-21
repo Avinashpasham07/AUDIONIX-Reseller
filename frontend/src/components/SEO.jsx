@@ -6,7 +6,7 @@ const SEO = ({
     description,
     keywords,
     image = '/assets/logo.png',
-    url = 'https://audionix-reseller.com',
+    url = 'https://audionix-reseller.vercel.app',
     type = 'website'
 }) => {
     const siteTitle = "AUDIONIX Reseller - Zero Inventory Wholesale Business";
