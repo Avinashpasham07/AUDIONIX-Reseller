@@ -1,7 +1,48 @@
 import { Suspense, lazy, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { HelmetProvider } from 'react-helmet-async';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import { PixelProvider } from './context/PixelContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import MainLayout from './components/MainLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+import api from './services/api';
 
-// ... (previous imports)
+// Lazy Load Pages
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Orders = lazy(() => import('./pages/Orders'));
+const AdminResellers = lazy(() => import('./pages/AdminResellers'));
+const AdminOrders = lazy(() => import('./pages/AdminOrders'));
+const AdminProducts = lazy(() => import('./pages/AdminProducts'));
+const AdminProductForm = lazy(() => import('./pages/AdminProductForm'));
+const AdminSettings = lazy(() => import('./pages/AdminSettings'));
+const AdminSubscriptionRequests = lazy(() => import('./pages/AdminSubscriptionRequests'));
+const AdminAnalytics = lazy(() => import('./pages/AdminAnalytics'));
+const AdminMeetings = lazy(() => import('./pages/AdminMeetings'));
+const AdminEmployees = lazy(() => import('./pages/AdminEmployees'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Products = lazy(() => import('./pages/Products'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ReturnsPolicy = lazy(() => import('./pages/ReturnsPolicy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const PendingApproval = lazy(() => import('./pages/PendingApproval'));
+
+// Loading Fallback Component
+const PageLoader = () => (
+  <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50">
+    <div className="w-12 h-12 border-4 border-zinc-800 border-t-red-600 rounded-full animate-spin mb-4"></div>
+    <div className="text-zinc-500 font-bold animate-pulse">Loading Audionix...</div>
+  </div>
+);
 
 function App() {
   // WAKE UP BACKEND (Cold Start Handling)
