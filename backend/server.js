@@ -48,9 +48,13 @@ if (process.env.NODE_ENV === 'production' && cluster.isPrimary) {
         cluster.fork();
     });
 
-    // Master Listens on Port
-    httpServer.listen(PORT, () => {
+    // Master Listens on Port immediately to satisfy health checks
+    httpServer.listen(PORT, '0.0.0.0', () => {
         console.log(`Audionix Cluster Primary running on port ${PORT}`);
+
+        // Start background services after port is open
+        connectDB();
+        startAutoRevokeJob();
     });
 
 } else {
