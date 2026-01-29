@@ -186,6 +186,14 @@ const AdminProductForm = () => {
         try {
             const payload = {
                 ...formData,
+                price: parseFloat(formData.price),
+                originalPrice: parseFloat(formData.originalPrice) || 0,
+                cutoffPrice: parseFloat(formData.cutoffPrice) || 0,
+                resellerPrice: parseFloat(formData.resellerPrice) || 0,
+                resellerPricePaid: parseFloat(formData.resellerPricePaid) || 0,
+                stock: parseInt(formData.stock),
+                moq: parseInt(formData.moq) || 1,
+                shippingFee: parseFloat(formData.shippingFee) || 0,
                 images: formData.images.filter(img => img && img.trim() !== '')
             };
 

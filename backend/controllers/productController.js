@@ -100,7 +100,7 @@ exports.getProductById = async (req, res) => {
 // @access  Private (Admin)
 exports.createProduct = async (req, res) => {
     try {
-        const { title, description, category, price, originalPrice, cutoffPrice, resellerPrice, resellerPricePaid, stock, images, pickupAddress, shippingFee, hsnCode } = req.body;
+        const { title, description, category, price, originalPrice, cutoffPrice, resellerPrice, resellerPricePaid, stock, moq, images, pickupAddress, shippingFee, hsnCode } = req.body;
 
         const product = await Product.create({
             title,
@@ -112,6 +112,7 @@ exports.createProduct = async (req, res) => {
             resellerPrice,
             resellerPricePaid,
             stock,
+            moq: moq || 1,
             images,
             pickupAddress,
             shippingFee: shippingFee || 0,
@@ -142,6 +143,7 @@ exports.updateProduct = async (req, res) => {
             product.resellerPrice = req.body.resellerPrice || product.resellerPrice;
             product.resellerPricePaid = req.body.resellerPricePaid || product.resellerPricePaid;
             product.stock = req.body.stock || product.stock;
+            product.moq = req.body.moq || product.moq;
             product.images = req.body.images || product.images;
             product.pickupAddress = req.body.pickupAddress || product.pickupAddress;
             if (req.body.shippingFee !== undefined) product.shippingFee = req.body.shippingFee;

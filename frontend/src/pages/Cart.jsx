@@ -11,6 +11,16 @@ const Cart = () => {
 
     const handleProceed = () => {
         if (cart.length === 0) return;
+
+        // Strict MOQ Validation Check
+        const invalidItems = cart.filter(item => item.quantity < (item.moq || 1));
+        if (invalidItems.length > 0) {
+            // Show alert for first invalid item
+            const firstItem = invalidItems[0];
+            alert(`Minimum order quantity for "${firstItem.title}" is ${firstItem.moq} units. Please increase quantity.`);
+            return;
+        }
+
         navigate('/checkout', { state: { margin } });
     };
 
@@ -44,7 +54,9 @@ const Cart = () => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-base font-bold text-white mb-2 text-center sm:text-left">{item.title}</div>
-                                    <div className="text-sm text-zinc-400 mb-2 text-center sm:text-left">Seller: Audionix Verified</div>
+                                    <div className="text-sm text-zinc-400 mb-2 text-center sm:text-left">
+                                        Seller: Audionix Verified  | <span className="text-orange-500 font-bold">Min Order: {item.moq || 1}</span>
+                                    </div>
 
                                     <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
                                         <span className="text-lg font-bold text-white">₹{item.price}</span>
@@ -56,7 +68,7 @@ const Cart = () => {
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                                                disabled={item.quantity <= 1}
+                                                disabled={item.quantity <= (item.moq || 1)}
                                                 className="w-8 h-8 rounded-full border border-zinc-700 bg-zinc-800 text-white flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-700"
                                             > - </button>
                                             <div className="w-10 text-center border border-zinc-700 bg-zinc-900 text-white py-0.5 rounded-md">{item.quantity}</div>

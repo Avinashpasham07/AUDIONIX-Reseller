@@ -28,7 +28,7 @@ app.use(mongoSanitize());
 app.use('/api/', globalLimiter);
 
 // Health Check
-app.get('/api/ping', (req, res) => res.status(200).send('Pong: Server is awake! 🚀'));
+app.get('/ping', (req, res) => res.status(200).send('Pong: Server is awake! 🚀'));
 
 // 2. HTTP Server & Socket.io
 const server = http.createServer(app);

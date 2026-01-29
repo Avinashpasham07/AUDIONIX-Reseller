@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://audionix-reseller.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 const API_URL = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`;
 const FILE_BASE_URL = API_URL.replace('/api/', '');
 const SOCKET_URL = FILE_BASE_URL.endsWith('/') ? FILE_BASE_URL.slice(0, -1) : FILE_BASE_URL;

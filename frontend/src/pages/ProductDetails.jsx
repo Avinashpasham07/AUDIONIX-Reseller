@@ -36,6 +36,7 @@ const ProductDetails = () => {
         const fetchProduct = async () => {
             try {
                 const { data } = await api.get(`/products/${id}`);
+                console.log("DEBUG: Fetched Product Data:", data); // Check if moq is 5 or 1
                 setProduct(data);
                 if (data.images && data.images.length > 0) setActiveImage(data.images[0]);
 
@@ -85,41 +86,47 @@ const ProductDetails = () => {
         }
     };
 
-    const handleDirectBuy = () => {
-        // Enforce MOQ
+    // MOQ Modal State
+    const [moqModal, setMoqModal] = useState({ show: false, action: null });
+
+    const handleActionRequest = (actionType) => {
         const minOrder = product.moq || 1;
-
-        // Determine price based on user plan
-        const priceToUse = user?.subscriptionPlan === 'paid'
-            ? (product.resellerPricePaid || product.resellerPrice)
-            : (product.resellerPrice || product.price);
-
-        // Direct Buy: Pass item with MOQ quantity
-        navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse, quantity: minOrder } } });
+        if (minOrder <= 1) {
+            // No MOQ enforcement needed, proceed directly
+            executeAction(actionType);
+        } else {
+            // Show MOQ Confirmation Modal
+            setMoqModal({ show: true, action: actionType });
+        }
     };
 
-    const handleAddToCart = () => {
+    const executeAction = (actionType) => {
         const minOrder = product.moq || 1;
         const priceToUse = user?.subscriptionPlan === 'paid'
             ? (product.resellerPricePaid || product.resellerPrice)
             : (product.resellerPrice || product.price);
 
-        addToCart({ ...product, price: priceToUse, quantity: minOrder });
-        trackEvent('AddToCart', {
-            content_name: product.title,
-            content_ids: [product._id],
-            content_type: 'product',
-            value: priceToUse * minOrder,
-            currency: 'INR'
-        });
-        toast.success(`${product.title} added to cart! (Qty: ${minOrder}) 🛒`);
+        if (actionType === 'cart') {
+            addToCart({ ...product, price: priceToUse, quantity: minOrder });
+            trackEvent('AddToCart', {
+                content_name: product.title,
+                content_ids: [product._id],
+                content_type: 'product',
+                value: priceToUse * minOrder,
+                currency: 'INR'
+            });
+            toast.success(`${product.title} added to cart! (Qty: ${minOrder}) 🛒`);
+        } else if (actionType === 'buy') {
+            navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse, quantity: minOrder } } });
+        }
+        setMoqModal({ show: false, action: null });
     };
 
     if (loading) return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Loading details...</div>;
     if (!product) return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Product not found.</div>;
 
     return (
-        <div className="max-w-7xl mx-auto p-4 md:p-8">
+        <div className="max-w-7xl mx-auto p-4 md:p-8 relative">
             <button
                 onClick={() => navigate(-1)}
                 className="flex items-center gap-2 mb-6 text-zinc-400 hover:text-white transition font-medium"
@@ -127,7 +134,42 @@ const ProductDetails = () => {
                 <div className="p-2 rounded-full bg-zinc-800 border border-zinc-700 shadow-sm"><FaArrowLeft size={12} /></div> Back
             </button>
 
+            {/* MOQ Confirmation Modal */}
+            {moqModal.show && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl max-w-sm w-full shadow-2xl relative animate-in fade-in zoom-in duration-200">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FaTags size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Minimum Order Quantity</h3>
+                            <p className="text-zinc-400 mb-6">
+                                This product has a Minimum Order Quantity (MOQ) of <strong className="text-white">{product.moq} units</strong>.
+                                <br />We will add {product.moq} items to your request.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setMoqModal({ show: false, action: null })}
+                                    className="flex-1 py-3 rounded-xl font-bold bg-zinc-800 text-zinc-400 hover:bg-zinc-700 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => executeAction(moqModal.action)}
+                                    className="flex-1 py-3 rounded-xl font-bold bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg shadow-orange-600/20"
+                                >
+                                    Okay, Add {product.moq}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* NEW: Mobile Header (Title, Ratings, Category) */}
+            <div className="bg-red-500 text-white p-2 text-center font-bold mb-4">
+                MOQ Detected  {product.moq}
+            </div>
             <div className="md:hidden mb-4">
                 <h1 className="text-2xl font-black text-white leading-tight mb-2 tracking-tight">{product.title}</h1>
                 <div className="flex items-center gap-3 text-sm text-zinc-400 mb-2">
@@ -232,7 +274,7 @@ const ProductDetails = () => {
                         <div className="space-y-3">
                             <div className="flex gap-3">
                                 <button
-                                    onClick={handleAddToCart}
+                                    onClick={() => handleActionRequest('cart')}
                                     className="flex-1 bg-zinc-800 border-2 border-zinc-700 text-white py-3 rounded-xl font-bold hover:bg-zinc-700 transition text-sm flex justify-center items-center gap-2 shadow-sm"
                                 >
                                     <FaShoppingCart size={16} /> Add to Cart
@@ -245,7 +287,7 @@ const ProductDetails = () => {
                                 </button>
                             </div>
                             <button
-                                onClick={handleDirectBuy}
+                                onClick={() => handleActionRequest('buy')}
                                 className="w-full bg-red-600 text-white border-none py-3.5 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20 text-base flex justify-center items-center gap-2"
                             >
                                 <FaBolt size={16} /> Buy Now
@@ -430,7 +472,7 @@ const ProductDetails = () => {
                     </span>
                 </div>
                 <button
-                    onClick={handleDirectBuy}
+                    onClick={() => handleActionRequest('buy')}
                     className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/20 flex items-center gap-2"
                 >
                     <FaBolt size={14} /> Buy Now

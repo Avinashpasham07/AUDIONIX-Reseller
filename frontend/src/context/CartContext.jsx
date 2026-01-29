@@ -15,12 +15,15 @@ export const CartProvider = ({ children }) => {
     const addToCart = (product) => {
         setCart((prevCart) => {
             const existingItem = prevCart.find((item) => item._id === product._id);
+            // Use passed quantity (which handles MOQ from ProductDetails) or fallback to MOQ or 1
+            const quantityToAdd = product.quantity || product.moq || 1;
+
             if (existingItem) {
                 return prevCart.map((item) =>
-                    item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+                    item._id === product._id ? { ...item, quantity: item.quantity + quantityToAdd } : item
                 );
             }
-            return [...prevCart, { ...product, quantity: 1 }];
+            return [...prevCart, { ...product, quantity: quantityToAdd }];
         });
     };
 
