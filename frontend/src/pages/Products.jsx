@@ -4,7 +4,7 @@ import AuthContext from '../context/AuthContext';
 import CartContext from '../context/CartContext';
 import api, { FILE_BASE_URL } from '../services/api';
 
-import { FaShoppingCart, FaBolt } from 'react-icons/fa';
+import { FaShoppingCart, FaBolt, FaCrown } from 'react-icons/fa';
 
 const Products = () => {
     const { addToCart } = useContext(CartContext);
@@ -65,13 +65,7 @@ const Products = () => {
         fetchProducts();
     }, [page]); // Trigger on page change
 
-    const handleDirectBuy = (product) => {
-        // Direct Buy: Skip adding to global cart, pass item directly to checkout
-        const priceToUse = user?.subscriptionPlan === 'paid'
-            ? (product.resellerPricePaid || product.resellerPrice)
-            : (product.resellerPrice || product.price);
-        navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse } } });
-    };
+    // handleDirectBuy logic moved inline to support MOQ
 
     // No client-side filtering needed anymore
     const filteredProducts = products;
@@ -157,6 +151,7 @@ const Products = () => {
                                         return `${FILE_BASE_URL}${img}`;
                                     })()}
                                     alt={product.title}
+                                    loading="lazy"
                                     className="w-full h-full object-cover transform"
                                 />
 
@@ -189,19 +184,37 @@ const Products = () => {
                                         </div>
                                         <div className="ml-auto mb-0.5">
                                             <span className="text-[8px] md:text-[10px] font-black bg-green-500/20 text-green-400 px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border border-green-500/10">
-                                                {product.price > (user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price))
-                                                    ? `${Math.round(((product.price - (user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price))) / product.price) * 100)}%`
-                                                    : 'BEST'
-                                                }
+                                                <span className="text-xs text-zinc-500 line-through">₹{product.price}</span>
+                                                <span className="text-xs font-bold text-green-500">
+                                                    {Math.round(((product.price - (user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price))) / product.price) * 100)}% OFF
+                                                </span>
                                             </span>
                                         </div>
                                     </div>
+                                    {user?.subscriptionPlan !== 'paid' && (
+                                        <div
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Use Navigate to append query param
+                                                navigate({ search: '?upgrade=true' });
+                                            }}
+                                            className="text-[10px] text-yellow-500 flex items-center gap-1 cursor-pointer hover:underline mt-1"
+                                        >
+                                            <FaCrown size={10} /> Buy at ₹{product.resellerPricePaid || product.resellerPrice} <span className="font-bold">→</span>
+                                        </div>
+                                    )}
 
                                     <div className="flex flex-col sm:grid sm:grid-cols-2 gap-2">
                                         <button
                                             onClick={() => {
+                                                const minOrder = product.moq || 1;
+                                                if (minOrder > 1) {
+                                                    const proceed = window.confirm(`This product has a Minimum Order Quantity of ${minOrder}. Add ${minOrder} units to cart?`);
+                                                    if (!proceed) return;
+                                                }
                                                 const priceToUse = user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price);
-                                                addToCart({ ...product, price: priceToUse, quantity: 1 });
+                                                addToCart({ ...product, price: priceToUse, quantity: minOrder });
+                                                toast.success(`Added ${minOrder} units to cart`);
                                             }}
                                             className="py-2.5 md:py-3 rounded-lg md:rounded-xl bg-zinc-800 text-white font-bold text-[10px] md:text-xs uppercase tracking-wide hover:bg-white hover:text-black transition-colors border border-zinc-700 hover:border-white"
                                         >
@@ -210,7 +223,16 @@ const Products = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                handleDirectBuy(product);
+                                                const minOrder = product.moq || 1;
+                                                if (minOrder > 1) {
+                                                    const proceed = window.confirm(`This product has a Minimum Order Quantity of ${minOrder}. Buy ${minOrder} units?`);
+                                                    if (!proceed) return;
+                                                }
+                                                const priceToUse = user?.subscriptionPlan === 'paid'
+                                                    ? (product.resellerPricePaid || product.resellerPrice)
+                                                    : (product.resellerPrice || product.price);
+                                                // Pass quantity to checkout
+                                                navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse, quantity: minOrder } } });
                                             }}
                                             className="py-2.5 md:py-3 flex items-center justify-center gap-1.5 md:gap-2 rounded-lg md:rounded-xl bg-red-600 text-white font-bold text-[10px] md:text-xs uppercase tracking-wide hover:bg-red-500 transition-colors shadow-lg shadow-red-900/20"
                                             title="Buy Now"

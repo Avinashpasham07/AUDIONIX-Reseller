@@ -20,6 +20,7 @@ const AdminProductForm = () => {
         resellerPricePaid: '',
         category: 'Electronics',
         stock: '100',
+        moq: '1',
         images: [],
         pickupAddress: '',
         shippingFee: '',
@@ -67,6 +68,7 @@ const AdminProductForm = () => {
                 resellerPricePaid: data.resellerPricePaid || '',
                 category: data.category,
                 stock: data.stock,
+                moq: data.moq || 1,
                 images: data.images || [],
                 pickupAddress: data.pickupAddress || '',
                 shippingFee: data.shippingFee || '',
@@ -349,6 +351,19 @@ const AdminProductForm = () => {
                                     required
                                     className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition placeholder-zinc-500"
                                     placeholder="100"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-zinc-400 mb-2">Min. Order Qty (MOQ)</label>
+                                <input
+                                    type="number"
+                                    name="moq"
+                                    value={formData.moq}
+                                    onChange={handleChange}
+                                    min="1"
+                                    className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white focus:border-red-500 focus:ring-4 focus:ring-red-500/10 outline-none transition placeholder-zinc-500"
+                                    placeholder="1"
                                 />
                             </div>
                         </div>

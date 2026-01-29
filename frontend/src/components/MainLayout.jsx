@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import PlansModal from './PlansModal';
 import Sidebar from './Sidebar';
@@ -9,6 +9,7 @@ import Footer from './Footer';
 const MainLayout = ({ children }) => {
     const { user, setUser } = useContext(AuthContext);
     const [showPlansModal, setShowPlansModal] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         if (!user || user.role !== 'reseller') return;
@@ -38,7 +39,16 @@ const MainLayout = ({ children }) => {
                 setShowPlansModal(true);
             }
         }
-    }, [user]);
+        // Check for ?upgrade=true query param
+        const params = new URLSearchParams(location.search);
+        if (params.get('upgrade') === 'true') {
+            setShowPlansModal(true);
+            // Clean up URL (optional, but cleaner)
+            // We use history api directly to avoid triggering another router navigation
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+        }
+    }, [user, location.search]);
 
     const handleCloseModal = () => {
         setShowPlansModal(false);

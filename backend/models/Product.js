@@ -29,6 +29,7 @@ const productSchema = new mongoose.Schema({
     resellerPrice: { type: Number, required: false, default: 0 }, // Base price for reseller (FREE Plan)
     resellerPricePaid: { type: Number, required: false, default: 0 }, // Discounted price (PAID Plan)
     stock: { type: Number, required: true, default: 0 },
+    moq: { type: Number, required: false, default: 1 }, // Minimum Order Quantity
     images: [{ type: String }], // Array of image URLs
     supplierId: {
         type: mongoose.Schema.Types.ObjectId,

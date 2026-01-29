@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 import api from '../services/api';
 import CartContext from '../context/CartContext';
-import { FaShoppingCart, FaBolt, FaArrowLeft, FaTags, FaStar, FaStarHalfAlt, FaExchangeAlt, FaShieldAlt, FaMapMarkerAlt, FaGift, FaHeart, FaRegHeart, FaWhatsapp } from 'react-icons/fa';
+import { FaShoppingCart, FaBolt, FaArrowLeft, FaTags, FaStar, FaStarHalfAlt, FaExchangeAlt, FaShieldAlt, FaMapMarkerAlt, FaGift, FaHeart, FaRegHeart, FaWhatsapp, FaCrown } from 'react-icons/fa';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -86,29 +86,33 @@ const ProductDetails = () => {
     };
 
     const handleDirectBuy = () => {
+        // Enforce MOQ
+        const minOrder = product.moq || 1;
+
         // Determine price based on user plan
         const priceToUse = user?.subscriptionPlan === 'paid'
             ? (product.resellerPricePaid || product.resellerPrice)
             : (product.resellerPrice || product.price);
 
-        // Direct Buy: Skip adding to global cart, pass item directly to checkout with correct price
-        navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse } } });
+        // Direct Buy: Pass item with MOQ quantity
+        navigate('/checkout', { state: { directBuyItem: { ...product, price: priceToUse, quantity: minOrder } } });
     };
 
     const handleAddToCart = () => {
+        const minOrder = product.moq || 1;
         const priceToUse = user?.subscriptionPlan === 'paid'
             ? (product.resellerPricePaid || product.resellerPrice)
             : (product.resellerPrice || product.price);
 
-        addToCart({ ...product, price: priceToUse });
+        addToCart({ ...product, price: priceToUse, quantity: minOrder });
         trackEvent('AddToCart', {
             content_name: product.title,
             content_ids: [product._id],
             content_type: 'product',
-            value: priceToUse,
+            value: priceToUse * minOrder,
             currency: 'INR'
         });
-        toast.success(`${product.title} added to cart! 🛒`);
+        toast.success(`${product.title} added to cart! (Qty: ${minOrder}) 🛒`);
     };
 
     if (loading) return <div style={{ textAlign: 'center', marginTop: '4rem' }}>Loading details...</div>;
@@ -179,11 +183,35 @@ const ProductDetails = () => {
                                             ({Math.round(((product.price - (user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price))) / product.price) * 100)}%)
                                         </span>
                                     </div>
+                                    {user.subscriptionPlan !== 'paid' && (
+                                        <div
+                                            onClick={() => navigate({ search: '?upgrade=true' })}
+                                            className="text-sm text-yellow-500 flex items-center gap-1.5 cursor-pointer hover:underline mb-4 font-bold animate-pulse"
+                                        >
+                                            <FaCrown size={12} /> Buy at ₹{product.resellerPricePaid || product.resellerPrice} <span className="font-bold">→</span>
+                                        </div>
+                                    )}
+                                    {(product.moq || 1) > 1 && (
+                                        <div className="text-orange-500 font-bold flex items-center gap-2 mt-1">
+                                            <FaTags size={12} /> Minimum Order: {product.moq} Units
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <>
                                     <div className="text-sm text-zinc-400 mb-1">Selling Price (MRP)</div>
                                     <div className="text-3xl font-black text-white mb-4">₹{product.price}</div>
+                                    <div
+                                        onClick={() => navigate({ search: '?upgrade=true' })}
+                                        className="text-sm text-yellow-500 flex items-center gap-1.5 cursor-pointer hover:underline mb-4 font-bold animate-pulse"
+                                    >
+                                        <FaCrown size={12} /> Buy at ₹{product.resellerPricePaid || product.resellerPrice} <span className="font-bold">→</span>
+                                    </div>
+                                    {(product.moq || 1) > 1 && (
+                                        <div className="text-orange-500 font-bold flex items-center gap-2 mt-1">
+                                            <FaTags size={12} /> Minimum Order: {product.moq} Units
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </div>

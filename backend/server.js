@@ -14,11 +14,13 @@ const helmet = require('helmet');
 const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
 const { globalLimiter } = require('./middleware/rateLimiter');
+const cors = require('cors');
 
 // 1. Database & App Config
 connectDB();
 startAutoRevokeJob();
 
+app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(xss());
@@ -26,7 +28,7 @@ app.use(mongoSanitize());
 app.use('/api/', globalLimiter);
 
 // Health Check
-app.get('/ping', (req, res) => res.status(200).send('Pong: Server is awake! 🚀'));
+app.get('/api/ping', (req, res) => res.status(200).send('Pong: Server is awake! 🚀'));
 
 // 2. HTTP Server & Socket.io
 const server = http.createServer(app);
