@@ -59,8 +59,12 @@ const Cart = () => {
                                     </div>
 
                                     <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
-                                        <span className="text-lg font-bold text-white">₹{item.price}</span>
-                                        {/* <span className="line-through text-zinc-400 text-sm">₹{item.price * 1.2}</span> */}
+                                        <div className="flex flex-col">
+                                            <span className="text-lg font-bold text-white">₹{item.price} <span className="text-zinc-500 text-xs font-normal">/ unit</span></span>
+                                            {item.quantity > 1 && (
+                                                <span className="text-sm font-bold text-green-500">Total: ₹{item.price * item.quantity}</span>
+                                            )}
+                                        </div>
                                         <span className="text-green-500 text-sm font-medium">Free Delivery</span>
                                     </div>
 

@@ -29,8 +29,8 @@ const Checkout = () => {
             let itemsToProcess = [];
 
             if (directBuyItem) {
-                // Formatting to match cart structure: { ...product, quantity: 1 }
-                itemsToProcess = [{ ...directBuyItem, quantity: 1, _id: directBuyItem._id }];
+                // Respect the quantity (MOQ) passed from ProductDetails
+                itemsToProcess = [{ ...directBuyItem, quantity: directBuyItem.quantity || 1, _id: directBuyItem._id }];
             } else if (cart.length > 0) {
                 itemsToProcess = cart;
             } else {
@@ -263,7 +263,7 @@ const Checkout = () => {
     };
 
     // Calculations
-    const finalItems = freshCart.length > 0 ? freshCart : (directBuyItem ? [{ ...directBuyItem, quantity: 1 }] : cart);
+    const finalItems = freshCart.length > 0 ? freshCart : (directBuyItem ? [{ ...directBuyItem, quantity: directBuyItem.quantity || 1 }] : cart);
     console.log('Final Items for Checkout:', finalItems); // DEBUG
     const basePrice = finalItems.reduce((t, i) => {
         let cost = i.price; // Default to MRP
@@ -730,6 +730,31 @@ const Checkout = () => {
                             </div>
                             <div className="text-xs text-zinc-500 text-right mt-1">
                                 (Total Payable: ₹{totalPayable})
+                            </div>
+                        </div>
+
+                        {/* Order Summary Section */}
+                        <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl mb-6">
+                            <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <FaTags className="text-red-500" /> Order Summary
+                            </h4>
+                            <div className="space-y-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                {finalItems.map((item, idx) => {
+                                    const unitPrice = user?.subscriptionPlan === 'paid'
+                                        ? (item.resellerPricePaid || item.resellerPrice || item.price)
+                                        : (item.resellerPrice || item.price);
+                                    return (
+                                        <div key={idx} className="flex justify-between items-start pb-4 border-b border-zinc-800/50 last:border-0 last:pb-0">
+                                            <div className="flex-1">
+                                                <div className="text-sm font-bold text-white truncate max-w-[180px]">{item.title}</div>
+                                                <div className="text-xs text-zinc-500">Qty: {item.quantity} × ₹{unitPrice}</div>
+                                            </div>
+                                            <div className="text-sm font-black text-green-500">
+                                                ₹{unitPrice * item.quantity}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 

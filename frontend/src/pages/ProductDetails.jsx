@@ -145,7 +145,8 @@ const ProductDetails = () => {
                             <h3 className="text-xl font-bold text-white mb-2">Minimum Order Quantity</h3>
                             <p className="text-zinc-400 mb-6">
                                 This product has a Minimum Order Quantity (MOQ) of <strong className="text-white">{product.moq} units</strong>.
-                                <br />We will add {product.moq} items to your request.
+                                <br />
+                                Total Price: <strong className="text-green-500 text-lg">₹{(user?.subscriptionPlan === 'paid' ? (product.resellerPricePaid || product.resellerPrice) : (product.resellerPrice || product.price)) * product.moq}</strong>
                             </p>
                             <div className="flex gap-3">
                                 <button
