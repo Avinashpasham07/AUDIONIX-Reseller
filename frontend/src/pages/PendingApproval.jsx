@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaCheckCircle, FaClock, FaWhatsapp } from 'react-icons/fa';
+import api from '../services/api';
 
 const PendingApproval = () => {
+    const [whatsappNumber, setWhatsappNumber] = useState('8099301082');
+
+    useEffect(() => {
+        const fetchWhatsApp = async () => {
+            try {
+                const { data } = await api.get('/admin/settings');
+                if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number);
+            } catch (err) { }
+        };
+        fetchWhatsApp();
+    }, []);
+
     return (
         <div className="min-h-screen bg-black flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
@@ -34,7 +47,7 @@ const PendingApproval = () => {
 
                     <div className="space-y-3">
                         <a
-                            href="https://wa.me/919876543210?text=Hi,%20I%20just%20registered%20on%20Audionix.%20Please%20approve%20my%20account."
+                            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hi, I just registered on Audionix. Please approve my account.')}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full block py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"

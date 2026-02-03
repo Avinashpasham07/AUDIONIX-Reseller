@@ -12,6 +12,21 @@ const Sidebar = () => {
     const [showPlansModal, setShowPlansModal] = useState(false);
     const [pendingMeetings, setPendingMeetings] = useState(0);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [whatsappNumber, setWhatsappNumber] = useState('8099301082');
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const { data } = await api.get('/admin/settings');
+                if (data.whatsapp_number) {
+                    setWhatsappNumber(data.whatsapp_number);
+                }
+            } catch (err) {
+                console.error("Failed to fetch settings", err);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     useEffect(() => {
         if (user?.role === 'admin') {
@@ -157,7 +172,7 @@ const Sidebar = () => {
                 {user?.role === 'reseller' && (
                     <div className="px-2 mb-2">
                         <a
-                            href="https://wa.me/8099301082"
+                            href={`https://wa.me/${whatsappNumber}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`flex items-center rounded-xl transition-all duration-200 py-3 px-3 mx-2 hover:bg-green-50 ${isExpanded
@@ -269,7 +284,7 @@ const Sidebar = () => {
 
                             {/* WHATSAPP */}
                             <a
-                                href="https://wa.me/8099301082"
+                                href={`https://wa.me/${whatsappNumber}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={() => setShowMobileMenu(false)}
